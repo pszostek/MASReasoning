@@ -1,0 +1,166 @@
+Problem:
+Znaleźć wszystkie konsekwencje klauzli c w rozproszonej bazie wiedzy. Algorytm wnioskowania ma uzyskać dokładnie te same rezultaty, co w przypadku wiedzy scentralizowanej będącej sumą teorii poszczególnych agentów. Żaden agent nie ma kontroli nad całością procesu wnioskowania. Agenty są w stanie przekazywać klauzule pomiędzy sobą zgodnie z zadaną siecią połączeń (nie wszystkie agenty są ze sobą połączone). 
+
+Założenia:
+-baza wiedzy jest spójna
+-nie ma żadnych restrykcyjnych założeń co do grafu sąsiedztwa
+-kolekcja powiązanych agentów
+-agenty są w stanie odebrać klauzule od innych, połąćzonych agentów i uwzględnić je w swoim procesie wnioskowania
+-wszystkie formuły (przchowywane w lokalnej bazie wiedzy i te wytworzone w procesie wnioskowania) mają postać alternatywy zmiennych lub klauzuli pustej.
+
+
+A peer-to-peer query answering system (PQAS) is a collection of intercon-
+nected peers, each of which hosts a local reasoner with a local knowledge base.
+Each reasoner produces consequences according to its local consequence re-
+lation. Reasoners are able to take in new clauses from other, connected
+peers and consider them in their reasoning process. All formulas, both those
+residing within local knowledge bases as well as those produced by the con-
+sequence relations, are in the language of propositional logic with bottom
+
+
+Rodzaje konsekwencji:
+Rozróżniamy trzy rodzaje konkswencji:
+1. Pochodzące z teorii lokalnego (dla zapytania) pojedynczego agenta
+2. Pochodzące z teorii pojedynczego oddalonego agenta
+3. Będące sumą teorii kilku agentów (mogą zawierać zmienne, które razem nie występują w żadnym z agentów).
+
+Wiadomości:
+Algorytm zakłada trzy typy procedur, z których każda jest wyzwalana przez odbiór jednej z trzech rodzajów wiadomości. Wiadomości mają postać m(Sender,Receiver, message_type, hist, l), gdzie:
+-Sender to agent wysyłający wiadomość,
+-Receiver to agent odbierający wiadomość,
+-mes
+
+
+
+
+
+sage_type to stała ze zbioru {Forth, Back, Final}, określająca typ wiadomości
+-hist to historia zapytań
+-l to literał, będący dowodzony w bierzącej gałęzi wnioskowania
+
+ReceiveForthMessage(m(Sender, Self, forth, hist, p))
+	if (¬p,_,_) ∈ hist then
+		send m(Self, Sender, back, [(p, Self, EMPTY_CLAUSE)|hist])
+		send m(Self, Sender, final, [(p, Self, true)|hist])
+	else if p ∈ Self or (p, Self, ) ∈ hist then
+		send m(Self, Sender, final, [(p, Self, true)|hist])
+	else
+		LOCAL(Self) ← {p} ∪ Resolvent(p, Self)
+		if EMPTY_CLASUE ∈ LOCAL(Self) then
+			send m(Self, Sender, back, [(p, Self, EMPTY_CLAUSE)|hist])
+			send m(Self, Sender, final, [(p, Self, true)|hist])
+		else
+			LOCAL(Self) ← {c ∈ LOCAL(Self) | all literals in c are shared}
+			if LOCAL(Self) = ∅ then
+				send m(Self, Sender, final, [(p, Self, true)|hist])
+				for all c ∈ LOCAL(Self) do
+				for all l ∈ c do
+					BOTTOM(l, [(p, Self, c)|hist]) ← false
+					for all RP ∈ ACQ(l, Self) do
+						FINAL(l, [(p, Self, c)|hist],RP) ← false
+						send m(Self,RP, forth, [(p, Self, c)|hist], l)
+
+ReceiveBackMessage(m(Sender, Self, back, hist))
+//hist ma postać [(l′, Sender, c′), (p, Self, c)|hist′]
+
+	BOTTOM(l′, [(p, Self, c)|hist′]) ← true
+	if ∀l ∈ c, BOTTOM(l, [(p, Self, c)|hist′]) = true then
+		if hist′ = ∅ then
+			U ← User
+		else
+			U ← the first peer P′ of hist′
+		send m(Self,U, back, [(p, Self, c)|hist′ ])
+		send m(Self,U, final, [(p, Self, c)|hist′])
+
+ReceiveFinalMessage(m(Sender, Self, final, hist))
+//hist jest postaci [(l′, Sender, true), (p, Self, c)|hist′ ]
+
+	FINAL(l′, [(p, Self, c)|hist′], Sender) ← true
+	if ∀c∗ ∈ LOCAL(Self) and ∀l ∈ c∗, FINAL(l, [(p, Self, c∗)|hist′], _) = true then
+		if hist′ = ∅ then
+			U ← User //odbiorcą wiadomości będzie Użytkownik
+		else
+			U ← the first peer P′ of hist′ //odbiorcą wiadomości będzie użytkownik
+	send m(Self,U, final, [(p, Self, true)|hist′]) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania 
+
+Procedura ReceiveForthMessage jest wyzwalana poprzez otrzymanie wiadomości m(Sender,Receiver, forth, hist, l) wysyłanej przez agenta Sender do agenta Receiver: na żądanie agenta Sender z którym agent Receiver współdzieli zmienna l przetwarzany jest literał l.
+
+Procedura ReceiveBackMessage jest wyzwalana przy odebraniu wiadomości m(Sender,Receiver, back, hist, r) od agenta Sender do agenta Receiver i przetwarza odpowiedź r udzieloną przez agenta Sender (dla literału l).
+Procedura ReceiveFinalMessage jest wyzwalana przy oderbaniu wiadomości m(Sender,Receiver, final, hist, true) od agenta Sender do agenta Receiver, w której komunikuje, że liczenie konsekwencji dla literału l (ostatnio dodany w historii) jest zakończone.
+
+Nowe zapytanie q jest zadawane przez użytkownika agentowi P poprzez wysłanie wiadomości m(User, P, forth, ∅, ¬q) i jest zakończone sukcesem w przypadu odebrania wiadomości m(P, User, back, hist). Jeżeli zapytanie nie może być dowiedzione przez system, użytkownik jest ostatecznie informowany poprzez wysłanie wiadomości m(P, User, final, hist) bez wysłania odpowiedniej wiadomości zwrotnej.
+
+W każdy agencie przechowywana jest wiedza w postaci zbioru klauzul.
+Każda klauzula ma postać alternatywy literałów. Może też być pojedynczym literałem albo klauzulą pustą.
+Implementacja: wzorzec kompozytu.
+
+W każdym agencie przechowywane są dwie struktury danych związane z procesem wnioskowania:
+-cons(l, hist) przechowuje konsekwencje klauzuli l obliczone w gałęzi wnioskowania odpowiadającej historii hist
+-final(q, hist) jest prawdziwe, kiedy propagacja zapytania q wewnątrz gałęzi wnioskowania, odpowiadającej historii hist jest zakończone
+
+Historia to list krotek (l,P,c), gdzie:
+-l to literał, będący częścią klauzuli c z poprzedniej krotki z listy,
+-P to agent,
+-c to klauzula, będąca konksekwencją literału l w agencie P
+Historia jest przesyłana w każdej wiadomości i pozwala ona się zorientować, jak wygląda dana gałąź wnioskowania. Dzięki niej możliwe jest wykrycie cykli
+
+Intrefejs:
+Baza wiedzy będzie przekazywana do programu w postaci pliku tekstowego. Ścieżka do pliku musi być pierwszym i jedynum argumentem wywołania programu Plik jest podzielony na dwie części. W pierwszej części w każdej linii zawarte są informacje na temat bazy wiedzy rozproszonej pomiędzy agentami. Poniżej gramatyka w formiacie EBNF opisująca składnię pliku z danymi:
+
+dane: wiedza_agentow '\n' połączenia_agentów
+
+wiedza_agentow: wiedza_agentow wiedza_agenta | wiedza_agenta
+wiedza_agenta: identyfikator ':' klauzule '\n'
+klauzule: klauzule ', ' klauzula | klauzula | ""
+klauzula: klauzula '+' literał | literał
+identyfikator: LICZBA
+
+połączenia_agentów: połączenia_agentów połączenia_agenta | połączenia_agenta
+połączenia agenta: identyfkator ':' lista_identyfikatorów '\n'
+lista_identyfikatorów: lista_identyfikatorów ', ' identyfikator | identyfikator | ''
+
+literał: NEGACJA LITERA | LITERA
+NEGACJA: '~' 
+LITERA: {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'}
+
+Przykładowy plik z danymi:
+1:a+b+c, b, d+~a
+2:c+a, ~e
+3:~a
+4:e+a
+
+1:1, 2, 3
+2:1
+3:1, 4
+4:3
+
+Baza wiedzy jako całość nie może byc spreczna. Informacje o połączeniach między agentami muszą być spójne. Połączenia są dwukierunkowe. Jeśli występuje połączenie od agenta A do agenta B, to musi też istnieć połączenie od agenta B do agenta A. 
+
+Interfejs programu będzie konsolowy. Użytkownik będzie miał możliwość wyboru identyfikatora agenta oraz podania zapytania w formie literału lub zapytania złożonego. Zapytanie złożone jest albo literałem, albo koniunkcją, albo alternatywą zapytań złożonych.
+
+Obsługa zapytania:
+Każde zapytanie zadane agentowi jest przez niego rozkładane na drzewo rozbioru gramatycznego, w którym w liściach przechowywane są pojedyncze literały, natomiast w węzłach nie będacych liśćmi przechowywane są operatory logiczne, łączące zapytania złożone przechowywane w poddrzewach podłączonych do danego wierzchołka.
+Zapytania złożone będące alternatywą logiczną są prawdziwe, jeśli co najmniej jedno z podzapytań jest prawdziwe. Koniunkcje logiczne są prawdziwe, jeśli wszystkie podzapytania są prawdziwe.
+
+Drzewo rozbioru zapytania jest przeglądane w głąb. Algorytm przeszukiwania jest rekurencyjny. Dla pierwszego wywołania należy podać korzeń drzewa:
+
+HandleComplexQuery(node):
+	//dla pierwszego wywołania node jest korzeniem
+	
+	if node is of class Literal:
+		return Adjiman(node)
+	if node is of class ComplexQuery:
+		if node.operator is ALTERNATIVE:
+			for n in node.children:
+				answer = Adjiman(n)
+				if answer is TRUE:
+					return TRUE
+			return FALSE
+
+		if node.operator is CONJUNCTION:
+			for n in node.children:
+				answer = Adjiman(n)
+				if answer is FALSE:
+					return FALSE
+			return TRUE
+
