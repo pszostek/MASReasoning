@@ -1,6 +1,7 @@
 Problem:
 Znaleźć wszystkie konsekwencje klauzli c w rozproszonej bazie wiedzy. Algorytm wnioskowania ma uzyskać dokładnie te same rezultaty, co w przypadku wiedzy scentralizowanej będącej sumą teorii poszczególnych agentów. Żaden agent nie ma kontroli nad całością procesu wnioskowania. Agenty są w stanie przekazywać klauzule pomiędzy sobą zgodnie z zadaną siecią połączeń (nie wszystkie agenty są ze sobą połączone). 
 
+
 Założenia:
 -baza wiedzy jest spójna
 -nie ma żadnych restrykcyjnych założeń co do grafu sąsiedztwa
@@ -8,35 +9,14 @@ Założenia:
 -agenty są w stanie odebrać klauzule od innych, połąćzonych agentów i uwzględnić je w swoim procesie wnioskowania
 -wszystkie formuły (przchowywane w lokalnej bazie wiedzy i te wytworzone w procesie wnioskowania) mają postać alternatywy zmiennych lub klauzuli pustej.
 
-
-A peer-to-peer query answering system (PQAS) is a collection of intercon-
-nected peers, each of which hosts a local reasoner with a local knowledge base.
-Each reasoner produces consequences according to its local consequence re-
-lation. Reasoners are able to take in new clauses from other, connected
-peers and consider them in their reasoning process. All formulas, both those
-residing within local knowledge bases as well as those produced by the con-
-sequence relations, are in the language of propositional logic with bottom
-
-
-Rodzaje konsekwencji:
-Rozróżniamy trzy rodzaje konkswencji:
-1. Pochodzące z teorii lokalnego (dla zapytania) pojedynczego agenta
-2. Pochodzące z teorii pojedynczego oddalonego agenta
-3. Będące sumą teorii kilku agentów (mogą zawierać zmienne, które razem nie występują w żadnym z agentów).
-
 Wiadomości:
 Algorytm zakłada trzy typy procedur, z których każda jest wyzwalana przez odbiór jednej z trzech rodzajów wiadomości. Wiadomości mają postać m(Sender,Receiver, message_type, hist, l), gdzie:
 -Sender to agent wysyłający wiadomość,
 -Receiver to agent odbierający wiadomość,
--mes
-
-
-
-
-
-sage_type to stała ze zbioru {Forth, Back, Final}, określająca typ wiadomości
--hist to historia zapytań
--l to literał, będący dowodzony w bierzącej gałęzi wnioskowania
+-message_type to stała ze zbioru {Forth, Back, Final}, określająca typ wiadomości,
+-hist to historia zapytań,
+-l to literał, będący dowodzony w bierzącej gałęzi wnioskowania.
+Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości).
 
 ReceiveForthMessage(m(Sender, Self, forth, hist, p))
 	if (¬p,_,_) ∈ hist then
@@ -71,7 +51,7 @@ ReceiveBackMessage(m(Sender, Self, back, hist))
 			U ← the first peer P′ of hist′
 		send m(Self,U, back, [(p, Self, c)|hist′ ])
 		send m(Self,U, final, [(p, Self, c)|hist′])
-
+"Ust awa o elektronicznych instrumentach płatniczyc
 ReceiveFinalMessage(m(Sender, Self, final, hist))
 //hist jest postaci [(l′, Sender, true), (p, Self, c)|hist′ ]
 
@@ -81,14 +61,90 @@ ReceiveFinalMessage(m(Sender, Self, final, hist))
 			U ← User //odbiorcą wiadomości będzie Użytkownik
 		else
 			U ← the first peer P′ of hist′ //odbiorcą wiadomości będzie użytkownik
-	send m(Self,U, final, [(p, Self, true)|hist′]) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania 
+	send m(Self,U, final, [(p, Self, true)|hist′]) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
+
+Zachowanie agenta:
+Każdy agent będzie posiadał zachowanie cykliczne, które będzie polegało na odbieraniu wiadomosci od innych agentów oraz na reakcji na nie. Obsługa wiadomości będzie implementowana jako pojedyncze zachowania, uruchamiane przy odbiorze odpowiedniego typu wiadomości. Poniżej zamieszczono szkic implementacji zachowania:
+
+class ServeMessages extends CyclicBehaviour {
+	public ServeMessagese(Agent a) {
+		super(a);
+	}
+
+	public void action() {
+		ACLMessage msg = myAgent.receive();
+		if (msg != null) {
+			// otrzymano wiadomość - sprawdź jej typ i uruchom procedurę
+			String content = msg.getContent();
+			type = parseType(content)
+			if(type == FORTH)
+				addBehaviour(new HandleForthMessage(this, msg));
+			else if(type == BACK)
+				addBehaviour(receiveBackMessage(this, msg));
+			else if(type == FINAL)
+				addBehaviour(receiveFinalMessage(this, msg));
+			else
+				throw UnknownMessageTypeException();
+		}
+	}
+}
+
+class HandleForthMessage extends OneShotBehaviour {
+	ACLMessage request;
+
+	public HandleForthMessage(Agent a, ACLMessage msg) {
+		super(a);
+		this.request = msg;
+	}
+	public void action() {
+		//w tym miejscu implementacja algorytmu zamieszczonego powyżej
+	}
+}
+
+class HandleBackMessage extends OneShotBehaviour {
+	ACLMessage request;
+	public HandleBackMessage(Agent a, ACLMessage msg) { /* ... */ }
+	public void action() {
+		//...
+	}
+}
+
+class HandleFinalMessage extends OneShotBehaviour {
+	ACLMessage request;
+	public HandleFinalMessage(Agent a, ACLMessage msg) {/*...*/}
+	public void action() {
+		//...
+	}
+}
 
 Procedura ReceiveForthMessage jest wyzwalana poprzez otrzymanie wiadomości m(Sender,Receiver, forth, hist, l) wysyłanej przez agenta Sender do agenta Receiver: na żądanie agenta Sender z którym agent Receiver współdzieli zmienna l przetwarzany jest literał l.
 
 Procedura ReceiveBackMessage jest wyzwalana przy odebraniu wiadomości m(Sender,Receiver, back, hist, r) od agenta Sender do agenta Receiver i przetwarza odpowiedź r udzieloną przez agenta Sender (dla literału l).
+
 Procedura ReceiveFinalMessage jest wyzwalana przy oderbaniu wiadomości m(Sender,Receiver, final, hist, true) od agenta Sender do agenta Receiver, w której komunikuje, że liczenie konsekwencji dla literału l (ostatnio dodany w historii) jest zakończone.
 
-Nowe zapytanie q jest zadawane przez użytkownika agentowi P poprzez wysłanie wiadomości m(User, P, forth, ∅, ¬q) i jest zakończone sukcesem w przypadu odebrania wiadomości m(P, User, back, hist). Jeżeli zapytanie nie może być dowiedzione przez system, użytkownik jest ostatecznie informowany poprzez wysłanie wiadomości m(P, User, final, hist) bez wysłania odpowiedniej wiadomości zwrotnej.
+Według oryginalnego algorytmu zapytanie q jest zadawane przez użytkownika agentowi P poprzez wysłanie wiadomości m(User, P, forth, ∅, ¬q) i jest zakończone sukcesem w przypadu odebrania wiadomości m(P, User, back, hist). Jeżeli zapytanie nie może być dowiedzione przez system, użytkownik jest ostatecznie informowany poprzez wysłanie wiadomości m(P, User, final, hist) bez wysłania odpowiedniej wiadomości zwrotnej. W projektowanej aplikacji zadawanie zapytania będzie zmodyfikowane
+
+Algorytm będzie implementowany w agencie poprzez zachowanie cykliczne, które będzie polegało na odbieraniu wiadomosci od innych agentów oraz na reakcji na nie. Poniżej zamieszczono szkic implementacji zachowania:
+
+private class ServeMessages extends CyclicBehaviour {
+	public void action() {
+		ACLMessage msg = myAgent.receive();
+		if (msg != null) {
+			// otrzymano wiadomość - sprawdź jej typ i uruchom procedurę
+			String content = msg.getContent();
+			type = parseType(content)
+			if(type == FORTH)
+				receiveForthMessage(msg);
+			else if(type == BACK)
+				receiveBackMessage(msg);
+			else if(type == FINAL)
+				receiveFinalMessage(msg);
+			else
+				throw UnknownMessageTypeException();
+		}
+	}
+} 
 
 W każdy agencie przechowywana jest wiedza w postaci zbioru klauzul.
 Każda klauzula ma postać alternatywy literałów. Może też być pojedynczym literałem albo klauzulą pustą.
@@ -134,9 +190,7 @@ Przykładowy plik z danymi:
 3:1, 4
 4:3
 
-Baza wiedzy jako całość nie może byc spreczna. Informacje o połączeniach między agentami muszą być spójne. Połączenia są dwukierunkowe. Jeśli występuje połączenie od agenta A do agenta B, to musi też istnieć połączenie od agenta B do agenta A. 
-
-Interfejs programu będzie konsolowy. Użytkownik będzie miał możliwość wyboru identyfikatora agenta oraz podania zapytania w formie literału lub zapytania złożonego. Zapytanie złożone jest albo literałem, albo koniunkcją, albo alternatywą zapytań złożonych.
+Baza wiedzy zawarta w pliku nie może byc sprzeczna. Informacje o połączeniach między agentami muszą być spójne. Połączenia są dwukierunkowe. Jeśli występuje połączenie od agenta A do agenta B, to musi też istnieć połączenie od agenta B do agenta A. 
 
 Obsługa zapytania:
 Każde zapytanie zadane agentowi jest przez niego rozkładane na drzewo rozbioru gramatycznego, w którym w liściach przechowywane są pojedyncze literały, natomiast w węzłach nie będacych liśćmi przechowywane są operatory logiczne, łączące zapytania złożone przechowywane w poddrzewach podłączonych do danego wierzchołka.
