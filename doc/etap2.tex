@@ -34,31 +34,35 @@ Algorytm zakłada trzy typy procedur, z których każda wyzwala jedną z trzech 
 \end{itemize}
 Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). 
 \\\\
+Do określania lokalnych konsekwencji literałów otrzymanych z zewnątrz używana będzie rezolucja, np:
+\begin{equation}
+\frac{\neg a \vee b, a \vee c}{b \vee c}
+\end{equation}
 Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
 \begin{algorithm}[H]
 \begin{algorithmic}
-\STATE \textbf{ReceiveForthMessage(m(Sender, Self, FORTH, hist, p))}
+\STATE \textbf{ReceiveForthMessage(m(Sender, Self, forth, hist, p))}
 \IF{($\neg$ p,\_,\_) $\in$ hist }
-\STATE send m(Self, Sender, BACK, [(p, Self, $\square$)|hist], $\square$)
-\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
+\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist], $\square$)
+\STATE send m(Self, Sender, final, [(p, Self, \TRUE)|hist], \TRUE)
 \ELSIF{p $\in$ Self or (p, Self,\_) $\in$ hist}
-\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
+\STATE send m(Self, Sender, final, [(p, Self, \TRUE)|hist], \TRUE)
 \ELSE
 \STATE LOCAL(Self) $\leftarrow$ \{p\} $\cup$ Resolvent(p, Self)
 \IF{$\square$ $\in$ LOCAL(Self)}
-\STATE send m(Self, Sender, BACK, [(p, Self, $\square$)|hist], $\square$)
-\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
+\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist], $\square$)
+\STATE send m(Self, Sender, final, [(p, Self, \TRUE)|hist], \TRUE)
 \ELSE
 \STATE LOCAL(Self) $\leftarrow$ \{c $\in$ LOCAL(Self) | all literals in c are shared\}
 \IF{$LOCAL(Self) = \emptyset$}
-\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist])
+\STATE send m(Self, Sender, FINAL, [(p, Self, \TRUE)|hist])
 \ENDIF
 \FORALL{c $\in$ LOCAL(Self)}
 \FORALL{l $\in$ c}
-\STATE BOTTOM(l, [(p, Self, c)|hist]) $\leftarrow$ false
+\STATE BOTTOM(l, [(p, Self, c)|hist]) $\leftarrow$ \FALSE
 \FORALL{RP $\in$ ACQ(l, Self)}
-\STATE FINAL(l, [(p, Self, c)|hist],RP) $\leftarrow$ false
-\STATE send m(Self,RP, FORTH, [(p, Self, c)|hist], l)
+\STATE FINAL(l, [(p, Self, c)|hist],RP) $\leftarrow$ \FALSE
+\STATE send m(Self, RP, forth, [(p, Self, c)|hist], l)
 \ENDFOR
 \ENDFOR
 \ENDFOR
@@ -68,33 +72,33 @@ Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymani
 \end{algorithm}
 \begin{algorithm}[H]
 \begin{algorithmic}
-\STATE \textbf{ReceiveBackMessage(m(Sender, Self, BACK, hist))}
+\STATE \textbf{ReceiveBackMessage(m(Sender, Self, bacl, hist))}
 \STATE \textit{//hist ma postać [(l', Sender, c'), (p, Self, c)|hist']}
-\STATE BOTTOM(l', [(p, Self, c)|hist'])$\leftarrow$true
-\IF{$\forall$ l $\in$ c, BOTTOM(l, [(p, Self, c)|hist']) = true}
+\STATE BOTTOM(l', [(p, Self, c)|hist'])$\leftarrow$ \TRUE
+\IF{$\forall$ l $\in$ c, BOTTOM(l, [(p, Self, c)|hist']) = \TRUE}
 \IF{hist' = $\emptyset$}
 \STATE U $\leftarrow$ User //odbiorcą wiadomości będzie użytkownik
 \ELSE
 \STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
 \ENDIF
-\STATE send m(Self, U, BACK, [(p, Self, c)|hist' ])
-\STATE send m(Self, U, FINAL, [(p, Self, c)|hist'])
+\STATE send m(Self, U, bacl, [(p, Self, c)|hist' ])
+\STATE send m(Self, U, final, [(p, Self, c)|hist'])
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
 \begin{algorithm}[H]
 \begin{algorithmic}
 \STATE \textbf{ReceiveFinalMessage(m(Sender, Self, final, hist))}
-\STATE \textit{//hist jest postaci [(l', Sender, true), (p, Self, c)|hist']}
-\STATE FINAL(l', [(p, Self, c)|hist'], Sender) $\leftarrow$ true
-\IF{$\forall$ $c^{*}$ $\in$ LOCAL(Self) and $\forall$ l $\in$ $c^{*}$, FINAL(l, [(p, Self, $c^{*}$)|hist'], \_) = true}
+\STATE \textit{//hist jest postaci [(l', Sender, \TRUE), (p, Self, c)|hist']}
+\STATE FINAL(l', [(p, Self, c)|hist'], Sender) $\leftarrow$ \TRUE
+\IF{$\forall$ $c^{*}$ $\in$ LOCAL(Self) and $\forall$ l $\in$ $c^{*}$, FINAL(l, [(p, Self, $c^{*}$)|hist'], \_) = \TRUE}
 \IF{hist' = $\emptyset$}
 \STATE U $\leftarrow$ User //odbiorcą wiadomości będzie Użytkownik
 \ELSE
 \STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
 \ENDIF
 \ENDIF
-\STATE send m(Self,U, final, [(p, Self, true)|hist']) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
+\STATE send m(Self,U, final, [(p, Self, \TRUE)|hist']) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
 \end{algorithmic}
 \end{algorithm}
 \section{Implementacja agenta}
@@ -194,11 +198,11 @@ W każdym agencie przechowywane są dwie struktury danych związane z procesem w
 -cons(l, hist) przechowuje konsekwencje klauzuli l obliczone w gałęzi wnioskowania odpowiadającej historii hist
 -final(q, hist) jest prawdziwe, kiedy propagacja zapytania q wewnątrz gałęzi wnioskowania, odpowiadającej historii hist jest zakończone
 
-Historia to list krotek (l,P,c), gdzie:
+Historia to list krotek (\textit{l}, \textit{P}, \textit{c}), gdzie:
 \begin{itemize}
-\item l to literał, będący częścią klauzuli c z poprzedniej krotki z listy,
-\item P to agent,
-\item c to klauzula, będąca konksekwencją literału l w agencie P
+\item \textit{l} to literał, będący częścią klauzuli \textit{c} z poprzedniej krotki z listy,
+\item \textit{P} to agent,
+\item \textit{c} to klauzula, będąca konksekwencją literału \textit{l} w agencie \textit{P}.
 \end{itemize}
 Historia jest przesyłana w każdej wiadomości i pozwala ona się zorientować, jak wygląda dana gałąź wnioskowania. Dzięki niej możliwe jest wykrycie cykli
 
@@ -217,9 +221,11 @@ klauzule: klauzule ', ' klauzula | klauzula | ""
 klauzula: klauzula '+' literał | literał
 identyfikator: LICZBA
 
-połączenia_agentów: połączenia_agentów połączenia_agenta | połączenia_agenta
+połączenia_agentów: połączenia_agentów połączenia_agenta 
+					| połączenia_agenta
 połączenia agenta: identyfkator ':' lista_identyfikatorów '\n'
-lista_identyfikatorów: lista_identyfikatorów ', ' identyfikator | identyfikator | ''
+lista_identyfikatorów: lista_identyfikatorów ', ' identyfikator 
+						| identyfikator | ''
 
 literał: NEGACJA LITERA | LITERA
 NEGACJA: '~' 
@@ -253,7 +259,7 @@ Drzewo rozbioru zapytania jest przeglądane w głąb. Algorytm przeszukiwania je
 \begin{algorithm}
 \begin{algorithmic}
 \STATE \textbf{HandleComplexQuery(node)}
-\STATE \textit{//dla pierwszego wywołania node jest korzeniem}
+\textit{//dla pierwszego wywołania node jest korzeniem}
 \IF{node is of class Literal}
 \RETURN{Adjiman(node)}
 \ENDIF    
@@ -261,20 +267,20 @@ Drzewo rozbioru zapytania jest przeglądane w głąb. Algorytm przeszukiwania je
 \IF{node.operator is ALTERNATIVE}
             \FOR{n in node.children}
              	\STATE answer = Adjiman(n)
-                \IF{answer is TRUE}
-                \STATE return TRUE
+                \IF{answer is \TRUE}
+                \RETURN{\TRUE}
 		\ENDIF
 	    \ENDFOR
-            \RETURN{FALSE}
+            \RETURN{\FALSE}
 \ENDIF
 \IF{node.operator is CONJUNCTION}
 \FOR{n in node.children}
 \STATE answer = Adjiman(n)
-\IF{answer is FALSE}
-                    \RETURN{FALSE}
+\IF{answer is \FALSE}
+                    \RETURN{\FALSE}
 \ENDIF
 \ENDFOR
-\RETURN{TRUE}
+\RETURN{\TRUE}
 \ENDIF
 \ENDIF
 \end{algorithmic}
