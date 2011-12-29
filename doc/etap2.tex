@@ -6,11 +6,12 @@
 \usepackage{algorithmic}
 \usepackage{algorithm}
 \usepackage{amsbsy, amssymb}
-
+\title{Wnioskowanie w rozproszonej bazie wiedzy Dokumentacja projektowa}
+\author{Piotr Gołoś \and Paweł Szostek}
 \begin{document}
+\maketitle
 \section{Problem}
-Znaleźć wszystkie konsekwencje klauzli c w rozproszonej bazie wiedzy. Algorytm wnioskowania ma uzyskać dokładnie te same rezultaty, co w przypadku wiedzy scentralizowanej będącej sumą teorii poszczególnych agentów. Żaden agent nie ma kontroli nad całością procesu wnioskowania. Agenty są w stanie przekazywać klauzule pomiędzy sobą zgodnie z zadaną siecią połączeń (nie wszystkie agenty są ze sobą połączone). 
-
+Celem projektu jest zaprojektowanie i zrealizowanie aplikacja do wnioskowania w grupie agentów. Algorytm wnioskowania ma uzyskać dokładnie te same rezultaty, co w przypadku wiedzy scentralizowanej będącej sumą teorii poszczególnych agentów. Proces wnioskowania będzie rozproszony i żaden agent nie ma kontroli nad jego całością. 
 
 \section{Algorytm}
 \subsection{Założenia}
@@ -18,41 +19,46 @@ Znaleźć wszystkie konsekwencje klauzli c w rozproszonej bazie wiedzy. Algorytm
 \item Algorytm opiera się na komunikacja między agentami. Agenty nie akumulują wiedzy od innych agentów, a proces wnioskowania opiera się na przekazywaniu wiadomości w systemie powiązanych agentów.
 \item Implementowany algorytm zakłada, że przechowywana baza wiedzy jest spójna. W przypadku zaistnienia sprzeczności w bazie wiedzy nie jest zapewniona poprawność wnioskowania.
 \item Algorytm zakłada, że w trakcie pracy systemu poszczególne agenty mogą się odłącząć oraz nowe agenty mogą się łączyć z systemem. Agenty dynamicznie uaktualniają swoją bazę połączeń (każdy agent przechowuje informacje o agentach, z którymi może prowadzić komunikację),
+\item Komunikacja między agentami będzie oparta na zadanym grafie połączeń. Dowolna para agentów będzie się w stanie komunikować między sobą wtedy, kiedy będzie istniało między nimi połączenie w grafie sąsiedztwa.
 \item Agenty odbierają klauzule od innych agentów i uwzględniają je w swoim procesie wnioskowania.
 \end{itemize}
 \subsection{Komunikacja międzyagentowa}
-W projektowanym programie implementowany będzie mechanizm komunikacji, który ma prowadzić do rozstrzygnięcia, czy zapytanie zadane z zewnątrz systemu jest prawdziwe czy fałszywe.
-Algorytm zakłada trzy typy procedur, z których każda jest wyzwalana przez odbiór jednej z trzech rodzajów wiadomości (Forth, Back lub Final). Wiadomości mają postać m(Sender,Receiver, message\_type, hist, l), gdzie:
--Sender to agent wysyłający wiadomość,
--Receiver to agent odbierający wiadomość,
--message\_type to stała ze zbioru {Forth, Back, Final}, określająca typ wiadomości,
--hist to historia zapytań,
--l to literał, będący dowodzony w bierzącej gałęzi wnioskowania.
-Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
-\begin{algorithm}
+W projektowanym programie implementowany będzie mechanizm komunikacji, którego celem jest wymiana wiadomości pomiędzy agentami, prowadząca do rozstrzygnięcia, czy zapytanie zadane z zewnątrz systemu jest prawdziwe czy fałszywe.
+Algorytm zakłada trzy typy procedur, z których każda wyzwala jedną z trzech procedur. Wiadomości mają postać m(\textit{Sender},\textit{Receiver}, \textit{message\_type}, \textit{hist}, \textit{l}), gdzie:
+\begin{itemize}
+\item \textit{Sender} to agent wysyłający wiadomość,
+\item \textit{Receiver} to agent odbierający wiadomość,
+\item \textit{message\_type} to stała ze zbioru \{FORTH, BACK, FINAL\}, określająca typ wiadomości,
+\item \textit{hist} to historia zapytań,
+\item \textit{l} to literał, będący dowodzony w bierzącej gałęzi wnioskowania. W każdej gałęzi wnioskowania przesyłany jest tylko jeden literał.
+\end{itemize}
+Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). 
+\\\\
+Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
+\begin{algorithm}[H]
 \begin{algorithmic}
-\STATE \textbf{ReceiveForthMessage(m(Sender, Self, forth, hist, p))}
+\STATE \textbf{ReceiveForthMessage(m(Sender, Self, FORTH, hist, p))}
 \IF{($\neg$ p,\_,\_) $\in$ hist }
-\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist])
-\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
-\ELSIF{p $\in$ Selfz or (p, Self,\_) $\in$ hist}
-\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\STATE send m(Self, Sender, BACK, [(p, Self, $\square$)|hist], $\square$)
+\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
+\ELSIF{p $\in$ Self or (p, Self,\_) $\in$ hist}
+\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
 \ELSE
 \STATE LOCAL(Self) $\leftarrow$ \{p\} $\cup$ Resolvent(p, Self)
 \IF{$\square$ $\in$ LOCAL(Self)}
-\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist])
-\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\STATE send m(Self, Sender, BACK, [(p, Self, $\square$)|hist], $\square$)
+\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist], true)
 \ELSE
 \STATE LOCAL(Self) $\leftarrow$ \{c $\in$ LOCAL(Self) | all literals in c are shared\}
 \IF{$LOCAL(Self) = \emptyset$}
-\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\STATE send m(Self, Sender, FINAL, [(p, Self, true)|hist])
 \ENDIF
 \FORALL{c $\in$ LOCAL(Self)}
 \FORALL{l $\in$ c}
 \STATE BOTTOM(l, [(p, Self, c)|hist]) $\leftarrow$ false
 \FORALL{RP $\in$ ACQ(l, Self)}
 \STATE FINAL(l, [(p, Self, c)|hist],RP) $\leftarrow$ false
-\STATE send m(Self,RP, forth, [(p, Self, c)|hist], l)
+\STATE send m(Self,RP, FORTH, [(p, Self, c)|hist], l)
 \ENDFOR
 \ENDFOR
 \ENDFOR
@@ -60,23 +66,23 @@ Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm 
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
-\begin{algorithm}
+\begin{algorithm}[H]
 \begin{algorithmic}
-\STATE \textbf{ReceiveBackMessage(m(Sender, Self, back, hist))}
+\STATE \textbf{ReceiveBackMessage(m(Sender, Self, BACK, hist))}
 \STATE \textit{//hist ma postać [(l', Sender, c'), (p, Self, c)|hist']}
 \STATE BOTTOM(l', [(p, Self, c)|hist'])$\leftarrow$true
 \IF{$\forall$ l $\in$ c, BOTTOM(l, [(p, Self, c)|hist']) = true}
 \IF{hist' = $\emptyset$}
-\STATE U $\leftarrow$ User
+\STATE U $\leftarrow$ User //odbiorcą wiadomości będzie użytkownik
 \ELSE
-\STATE U $\leftarrow$ the first peer P' of hist'
+\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
 \ENDIF
-\STATE send m(Self, U, back, [(p, Self, c)|hist' ])
-\STATE send m(Self, U, final, [(p, Self, c)|hist'])
+\STATE send m(Self, U, BACK, [(p, Self, c)|hist' ])
+\STATE send m(Self, U, FINAL, [(p, Self, c)|hist'])
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
-\begin{algorithm}
+\begin{algorithm}[H]
 \begin{algorithmic}
 \STATE \textbf{ReceiveFinalMessage(m(Sender, Self, final, hist))}
 \STATE \textit{//hist jest postaci [(l', Sender, true), (p, Self, c)|hist']}
@@ -85,7 +91,7 @@ Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm 
 \IF{hist' = $\emptyset$}
 \STATE U $\leftarrow$ User //odbiorcą wiadomości będzie Użytkownik
 \ELSE
-\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą wiadomości będzie użytkownik
+\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
 \ENDIF
 \ENDIF
 \STATE send m(Self,U, final, [(p, Self, true)|hist']) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
@@ -103,7 +109,7 @@ class ServeMessages extends CyclicBehaviour {
     }
 
     public void action() {
-        ACLMessage msg = myAgent.receive();
+        ACLMessage msg = this.receive();
         if (msg != null) {
             // otrzymano wiadomość - sprawdź jej typ i uruchom procedurę
             String content = msg.getContent();
@@ -111,9 +117,9 @@ class ServeMessages extends CyclicBehaviour {
             if(type == FORTH)
                 addBehaviour(new HandleForthMessage(this, msg));
             else if(type == BACK)
-                addBehaviour(receiveBackMessage(this, msg));
+                addBehaviour(new HandleBackMessage(this, msg));
             else if(type == FINAL)
-                addBehaviour(receiveFinalMessage(this, msg));
+                addBehaviour(new HandleFinalMessage(this, msg));
             else
                 throw UnknownMessageTypeException();
         }
@@ -150,11 +156,11 @@ class HandleFinalMessage extends OneShotBehaviour {
 
 \end{verbatim}
 
-Procedura ReceiveForthMessage jest wyzwalana poprzez otrzymanie wiadomości m(Sender,Receiver, forth, hist, l) wysyłanej przez agenta Sender do agenta Receiver: na żądanie agenta Sender z którym agent Receiver współdzieli zmienna l przetwarzany jest literał l.
+Procedura \verb!ReceiveForthMessage! jest wyzwalana poprzez otrzymanie wiadomości m(Sender,Receiver, forth, hist, l) wysyłanej przez agenta Sender do agenta Receiver: na żądanie agenta Sender, z którym agent Receiver współdzieli zmienną l, przetwarzany jest literał l.
 
-Procedura ReceiveBackMessage jest wyzwalana przy odebraniu wiadomości m(Sender,Receiver, back, hist, r) od agenta Sender do agenta Receiver i przetwarza odpowiedź r udzieloną przez agenta Sender (dla literału l).
+Procedura \verb!ReceiveBackMessage! jest wyzwalana przy odebraniu wiadomości m(Sender,Receiver, back, hist, r) od agenta Sender do agenta Receiver i przetwarza odpowiedź r udzieloną przez agenta Sender (dla literału l).
 
-Procedura ReceiveFinalMessage jest wyzwalana przy oderbaniu wiadomości m(Sender,Receiver, final, hist, true) od agenta Sender do agenta Receiver, w której komunikuje, że liczenie konsekwencji dla literału l (ostatnio dodany w historii) jest zakończone.
+Procedura receiveFinalMessage jest wyzwalana przy oderbaniu wiadomości m(Sender,Receiver, final, hist, true) od agenta Sender do agenta Receiver, w której komunikuje, że liczenie konsekwencji dla literału l (ostatnio dodany w historii) jest zakończone.
 
 Według oryginalnego algorytmu zapytanie q jest zadawane przez użytkownika agentowi P poprzez wysłanie wiadomości m(User, P, forth, $\emptyset$, $\neg$q) i jest zakończone sukcesem w przypadu odebrania wiadomości m(P, User, back, hist). Jeżeli zapytanie nie może być dowiedzione przez system, użytkownik jest ostatecznie informowany poprzez wysłanie wiadomości m(P, User, final, hist) bez wysłania odpowiedniej wiadomości zwrotnej. W projektowanej aplikacji zadawanie zapytania będzie zmodyfikowane
 
