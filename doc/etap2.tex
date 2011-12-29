@@ -1,0 +1,276 @@
+\documentclass[a4paper,12pt]{mwart}
+\usepackage{polski}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{amsbsy, amssymb}
+
+\begin{document}
+\section{Problem}
+Znaleźć wszystkie konsekwencje klauzli c w rozproszonej bazie wiedzy. Algorytm wnioskowania ma uzyskać dokładnie te same rezultaty, co w przypadku wiedzy scentralizowanej będącej sumą teorii poszczególnych agentów. Żaden agent nie ma kontroli nad całością procesu wnioskowania. Agenty są w stanie przekazywać klauzule pomiędzy sobą zgodnie z zadaną siecią połączeń (nie wszystkie agenty są ze sobą połączone). 
+
+
+\section{Algorytm}
+\subsection{Założenia}
+\begin{itemize}
+\item Algorytm opiera się na komunikacja między agentami. Agenty nie akumulują wiedzy od innych agentów, a proces wnioskowania opiera się na przekazywaniu wiadomości w systemie powiązanych agentów.
+\item Implementowany algorytm zakłada, że przechowywana baza wiedzy jest spójna. W przypadku zaistnienia sprzeczności w bazie wiedzy nie jest zapewniona poprawność wnioskowania.
+\item Algorytm zakłada, że w trakcie pracy systemu poszczególne agenty mogą się odłącząć oraz nowe agenty mogą się łączyć z systemem. Agenty dynamicznie uaktualniają swoją bazę połączeń (każdy agent przechowuje informacje o agentach, z którymi może prowadzić komunikację),
+\item Agenty odbierają klauzule od innych agentów i uwzględniają je w swoim procesie wnioskowania.
+\end{itemize}
+\subsection{Komunikacja międzyagentowa}
+W projektowanym programie implementowany będzie mechanizm komunikacji, który ma prowadzić do rozstrzygnięcia, czy zapytanie zadane z zewnątrz systemu jest prawdziwe czy fałszywe.
+Algorytm zakłada trzy typy procedur, z których każda jest wyzwalana przez odbiór jednej z trzech rodzajów wiadomości (Forth, Back lub Final). Wiadomości mają postać m(Sender,Receiver, message\_type, hist, l), gdzie:
+-Sender to agent wysyłający wiadomość,
+-Receiver to agent odbierający wiadomość,
+-message\_type to stała ze zbioru {Forth, Back, Final}, określająca typ wiadomości,
+-hist to historia zapytań,
+-l to literał, będący dowodzony w bierzącej gałęzi wnioskowania.
+Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
+\begin{algorithm}
+\begin{algorithmic}
+\STATE \textbf{ReceiveForthMessage(m(Sender, Self, forth, hist, p))}
+\IF{($\neg$ p,\_,\_) $\in$ hist }
+\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist])
+\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\ELSIF{p $\in$ Selfz or (p, Self,\_) $\in$ hist}
+\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\ELSE
+\STATE LOCAL(Self) $\leftarrow$ \{p\} $\cup$ Resolvent(p, Self)
+\IF{$\square$ $\in$ LOCAL(Self)}
+\STATE send m(Self, Sender, back, [(p, Self, $\square$)|hist])
+\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\ELSE
+\STATE LOCAL(Self) $\leftarrow$ \{c $\in$ LOCAL(Self) | all literals in c are shared\}
+\IF{$LOCAL(Self) = \emptyset$}
+\STATE send m(Self, Sender, final, [(p, Self, true)|hist])
+\ENDIF
+\FORALL{c $\in$ LOCAL(Self)}
+\FORALL{l $\in$ c}
+\STATE BOTTOM(l, [(p, Self, c)|hist]) $\leftarrow$ false
+\FORALL{RP $\in$ ACQ(l, Self)}
+\STATE FINAL(l, [(p, Self, c)|hist],RP) $\leftarrow$ false
+\STATE send m(Self,RP, forth, [(p, Self, c)|hist], l)
+\ENDFOR
+\ENDFOR
+\ENDFOR
+\ENDIF
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+\begin{algorithmic}
+\STATE \textbf{ReceiveBackMessage(m(Sender, Self, back, hist))}
+\STATE \textit{//hist ma postać [(l', Sender, c'), (p, Self, c)|hist']}
+\STATE BOTTOM(l', [(p, Self, c)|hist'])$\leftarrow$true
+\IF{$\forall$ l $\in$ c, BOTTOM(l, [(p, Self, c)|hist']) = true}
+\IF{hist' = $\emptyset$}
+\STATE U $\leftarrow$ User
+\ELSE
+\STATE U $\leftarrow$ the first peer P' of hist'
+\ENDIF
+\STATE send m(Self, U, back, [(p, Self, c)|hist' ])
+\STATE send m(Self, U, final, [(p, Self, c)|hist'])
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+\begin{algorithmic}
+\STATE \textbf{ReceiveFinalMessage(m(Sender, Self, final, hist))}
+\STATE \textit{//hist jest postaci [(l', Sender, true), (p, Self, c)|hist']}
+\STATE FINAL(l', [(p, Self, c)|hist'], Sender) $\leftarrow$ true
+\IF{$\forall$ $c^{*}$ $\in$ LOCAL(Self) and $\forall$ l $\in$ $c^{*}$, FINAL(l, [(p, Self, $c^{*}$)|hist'], \_) = true}
+\IF{hist' = $\emptyset$}
+\STATE U $\leftarrow$ User //odbiorcą wiadomości będzie Użytkownik
+\ELSE
+\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą wiadomości będzie użytkownik
+\ENDIF
+\ENDIF
+\STATE send m(Self,U, final, [(p, Self, true)|hist']) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
+\end{algorithmic}
+\end{algorithm}
+\section{Implementacja agenta}
+Wszystkie agenty będą homogeniczne i będą implementowały te same zachowania. Agenty będą się różniły wiedzą i połączeniami, które będą mu podawane na etapie tworzenia.
+\subsection{Zachowania agenta}
+Każdy agent będzie posiadał zachowanie cykliczne, które będzie polegało na odbieraniu wiadomosci od innych agentów oraz na reakcji na nie. Obsługa wiadomości będzie implementowana jako pojedyncze zachowania, uruchamiane przy odbiorze odpowiedniego typu wiadomości. Poniżej zamieszczono szkic implementacji zachowania:
+
+\begin{verbatim}
+class ServeMessages extends CyclicBehaviour {
+    public ServeMessagese(Agent a) {
+        super(a);
+    }
+
+    public void action() {
+        ACLMessage msg = myAgent.receive();
+        if (msg != null) {
+            // otrzymano wiadomość - sprawdź jej typ i uruchom procedurę
+            String content = msg.getContent();
+            type = parseType(content)
+            if(type == FORTH)
+                addBehaviour(new HandleForthMessage(this, msg));
+            else if(type == BACK)
+                addBehaviour(receiveBackMessage(this, msg));
+            else if(type == FINAL)
+                addBehaviour(receiveFinalMessage(this, msg));
+            else
+                throw UnknownMessageTypeException();
+        }
+    }
+}
+
+class HandleForthMessage extends OneShotBehaviour {
+    ACLMessage request;
+
+    public HandleForthMessage(Agent a, ACLMessage msg) {
+        super(a);
+        this.request = msg;
+    }
+    public void action() {
+        //w tym miejscu implementacja algorytmu zamieszczonego powyżej
+    }
+}
+
+class HandleBackMessage extends OneShotBehaviour {
+    ACLMessage request;
+    public HandleBackMessage(Agent a, ACLMessage msg) { /* ... */ }
+    public void action() {
+        //...
+    }
+}
+
+class HandleFinalMessage extends OneShotBehaviour {
+    ACLMessage request;
+    public HandleFinalMessage(Agent a, ACLMessage msg) {/*...*/}
+    public void action() {
+        //...
+    }
+}
+
+\end{verbatim}
+
+Procedura ReceiveForthMessage jest wyzwalana poprzez otrzymanie wiadomości m(Sender,Receiver, forth, hist, l) wysyłanej przez agenta Sender do agenta Receiver: na żądanie agenta Sender z którym agent Receiver współdzieli zmienna l przetwarzany jest literał l.
+
+Procedura ReceiveBackMessage jest wyzwalana przy odebraniu wiadomości m(Sender,Receiver, back, hist, r) od agenta Sender do agenta Receiver i przetwarza odpowiedź r udzieloną przez agenta Sender (dla literału l).
+
+Procedura ReceiveFinalMessage jest wyzwalana przy oderbaniu wiadomości m(Sender,Receiver, final, hist, true) od agenta Sender do agenta Receiver, w której komunikuje, że liczenie konsekwencji dla literału l (ostatnio dodany w historii) jest zakończone.
+
+Według oryginalnego algorytmu zapytanie q jest zadawane przez użytkownika agentowi P poprzez wysłanie wiadomości m(User, P, forth, $\emptyset$, $\neg$q) i jest zakończone sukcesem w przypadu odebrania wiadomości m(P, User, back, hist). Jeżeli zapytanie nie może być dowiedzione przez system, użytkownik jest ostatecznie informowany poprzez wysłanie wiadomości m(P, User, final, hist) bez wysłania odpowiedniej wiadomości zwrotnej. W projektowanej aplikacji zadawanie zapytania będzie zmodyfikowane
+
+Algorytm będzie implementowany w agencie poprzez zachowanie cykliczne, które będzie polegało na odbieraniu wiadomosci od innych agentów oraz na reakcji na nie. Poniżej zamieszczono szkic implementacji zachowania:
+\begin{verbatim}
+private class ServeMessages extends CyclicBehaviour {
+    public void action() {
+        ACLMessage msg = myAgent.receive();
+        if (msg != null) {
+            // otrzymano wiadomość - sprawdź jej typ i uruchom procedurę
+            String content = msg.getContent();
+            type = parseType(content)
+            if(type == FORTH)
+                receiveForthMessage(msg);
+            else if(type == BACK)
+                receiveBackMessage(msg);
+            else if(type == FINAL)
+                receiveFinalMessage(msg);
+            else
+                throw UnknownMessageTypeException();
+        }
+    }
+}
+\end{verbatim}
+\subsection{Struktura agenta}
+W każdy agencie przechowywana jest wiedza w postaci zbioru klauzul.
+Każda klauzula ma postać alternatywy literałów. Może też być pojedynczym literałem albo klauzulą pustą.
+Implementacja: wzorzec kompozytu.
+
+W każdym agencie przechowywane są dwie struktury danych związane z procesem wnioskowania:
+-cons(l, hist) przechowuje konsekwencje klauzuli l obliczone w gałęzi wnioskowania odpowiadającej historii hist
+-final(q, hist) jest prawdziwe, kiedy propagacja zapytania q wewnątrz gałęzi wnioskowania, odpowiadającej historii hist jest zakończone
+
+Historia to list krotek (l,P,c), gdzie:
+\begin{itemize}
+\item l to literał, będący częścią klauzuli c z poprzedniej krotki z listy,
+\item P to agent,
+\item c to klauzula, będąca konksekwencją literału l w agencie P
+\end{itemize}
+Historia jest przesyłana w każdej wiadomości i pozwala ona się zorientować, jak wygląda dana gałąź wnioskowania. Dzięki niej możliwe jest wykrycie cykli
+
+\section{Interfejs}
+\subsection{Baza wiedzy}
+Baza wiedzy dla programu będzie przechowywana w postaci pliku tekstowego. Dane z niego będą używane w momencie tworzenia agentów i będą im przekazywane jako argumenty wywołania.
+\\
+Plik jest podzielony na dwie części: w pierwszej części w każdej linii zawarte są informacje na temat bazy wiedzy rozproszonej pomiędzy agentami. Druga część zawiera informacjeo o połączeniach między agentami. Poniżej gramatyka w formiacie EBNF opisująca składnię pliku z danymi:
+
+\begin{verbatim}
+dane: wiedza_agentow '\n' połączenia_agentów
+
+wiedza_agentow: wiedza_agentow wiedza_agenta | wiedza_agenta
+wiedza_agenta: identyfikator ':' klauzule '\n'
+klauzule: klauzule ', ' klauzula | klauzula | ""
+klauzula: klauzula '+' literał | literał
+identyfikator: LICZBA
+
+połączenia_agentów: połączenia_agentów połączenia_agenta | połączenia_agenta
+połączenia agenta: identyfkator ':' lista_identyfikatorów '\n'
+lista_identyfikatorów: lista_identyfikatorów ', ' identyfikator | identyfikator | ''
+
+literał: NEGACJA LITERA | LITERA
+NEGACJA: '~' 
+LITERA: {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
+'p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
+'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
+'X', 'Y', 'Z'}
+
+Przykładowy plik z danymi:
+1:a+b+c, b, d+~a
+2:c+a, ~e
+3:~a
+4:e+a
+
+1:1, 2, 3
+2:1
+3:1, 4
+4:3
+\end{verbatim}
+
+Baza wiedzy zawarta w pliku nie może byc sprzeczna. Informacje o połączeniach między agentami muszą być spójne. Połączenia są dwukierunkowe. Jeśli występuje połączenie od agenta A do agenta B, to musi też istnieć połączenie od agenta B do agenta A. 
+
+\subsection{Instancjacja agentów}
+Agenty są instancjowane z wykorzystaniem klasy jade.Boot. Wiedza agenta jest przekazywana w formie stringa jako argument konstruktora klasy.
+
+\subsection{Obsługa zapytania}
+Każde zapytanie zadane agentowi jest przez niego rozkładane na drzewo rozbioru gramatycznego, w którym w liściach przechowywane są pojedyncze literały, natomiast w węzłach nie będacych liśćmi przechowywane są operatory logiczne, łączące zapytania złożone przechowywane w poddrzewach podłączonych do danego wierzchołka.
+Zapytania złożone będące alternatywą logiczną są prawdziwe, jeśli co najmniej jedno z podzapytań jest prawdziwe. Koniunkcje logiczne są prawdziwe, jeśli wszystkie podzapytania są prawdziwe.
+
+Drzewo rozbioru zapytania jest przeglądane w głąb. Algorytm przeszukiwania jest rekurencyjny. Dla pierwszego wywołania należy podać korzeń drzewa:
+\begin{algorithm}
+\begin{algorithmic}
+\STATE \textbf{HandleComplexQuery(node)}
+\STATE \textit{//dla pierwszego wywołania node jest korzeniem}
+\IF{node is of class Literal}
+\RETURN{Adjiman(node)}
+\ENDIF    
+\IF{node is of class ComplexQuery}
+\IF{node.operator is ALTERNATIVE}
+            \FOR{n in node.children}
+             	\STATE answer = Adjiman(n)
+                \IF{answer is TRUE}
+                \STATE return TRUE
+		\ENDIF
+	    \ENDFOR
+            \RETURN{FALSE}
+\ENDIF
+\IF{node.operator is CONJUNCTION}
+\FOR{n in node.children}
+\STATE answer = Adjiman(n)
+\IF{answer is FALSE}
+                    \RETURN{FALSE}
+\ENDIF
+\ENDFOR
+\RETURN{TRUE}
+\ENDIF
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+\end{document}
