@@ -24,14 +24,14 @@ Celem projektu jest zaprojektowanie i zrealizowanie aplikacja do wnioskowania w 
 \end{itemize}
 \subsection{Komunikacja międzyagentowa}
 W projektowanym programie implementowany będzie mechanizm komunikacji, którego celem jest wymiana wiadomości pomiędzy agentami, prowadząca do rozstrzygnięcia, czy zapytanie zadane z zewnątrz systemu jest prawdziwe czy fałszywe.
-Algorytm zakłada trzy typy procedur, z których każda wyzwala jedną z trzech procedur. Wiadomości mają postać m(\textit{Sender},\textit{Receiver}, \textit{message\_type}, \textit{hist}, \textit{l}), gdzie:
-\begin{itemize}
-\item \textit{Sender} to agent wysyłający wiadomość,
-\item \textit{Receiver} to agent odbierający wiadomość,
-\item \textit{message\_type} to stała ze zbioru \{FORTH, BACK, FINAL\}, określająca typ wiadomości,
-\item \textit{hist} to historia zapytań,
-\item \textit{l} to literał, będący dowodzony w bierzącej gałęzi wnioskowania. W każdej gałęzi wnioskowania przesyłany jest tylko jeden literał.
-\end{itemize}
+Algorytm zakłada trzy typy wiadomości, z których każda wyzwala jedną z trzech procedur. Wiadomości mają postać m(\textit{Sender},\textit{Receiver}, \textit{message\_type}, \textit{hist}, \textit{l}), gdzie:
+\begin{description}
+\item[Sender] to agent wysyłający wiadomość,
+\item[Receiver] to agent odbierający wiadomość,
+\item[message\_type] to stała ze zbioru \{FORTH, BACK, FINAL\}, określająca typ wiadomości,
+\item[hist] to historia zapytań,
+\item[l] to literał, będący dowodzony w bierzącej gałęzi wnioskowania. W każdej gałęzi wnioskowania przesyłany jest tylko jeden literał.
+\end{description}
 Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). 
 \\\\
 Do określania lokalnych konsekwencji literałów otrzymanych z zewnątrz używana będzie rezolucja, np:
@@ -39,7 +39,9 @@ Do określania lokalnych konsekwencji literałów otrzymanych z zewnątrz używa
 \frac{\neg a \vee b, a \vee c}{b \vee c}
 \end{equation}
 Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
+
 \begin{algorithm}[H]
+\caption{Procedura wywoływana przy odbiorze wiadomości typu Forth}
 \begin{algorithmic}
 \STATE \textbf{ReceiveForthMessage(m(Sender, Self, forth, hist, p))}
 \IF{($\neg$ p,\_,\_) $\in$ hist }
@@ -71,15 +73,16 @@ Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymani
 \end{algorithmic}
 \end{algorithm}
 \begin{algorithm}[H]
+\caption{Procedura wykonywana przy odbiorze wiadomości typu Back}
 \begin{algorithmic}
-\STATE \textbf{ReceiveBackMessage(m(Sender, Self, bacl, hist))}
-\STATE \textit{//hist ma postać [(l', Sender, c'), (p, Self, c)|hist']}
+\STATE \textbf{ReceiveBackMessage(m(Sender, Self, back, hist))}
+\STATE \COMMENT{hist ma postać [(l', Sender, c'), (p, Self, c)|hist']}
 \STATE BOTTOM(l', [(p, Self, c)|hist'])$\leftarrow$ \TRUE
 \IF{$\forall$ l $\in$ c, BOTTOM(l, [(p, Self, c)|hist']) = \TRUE}
 \IF{hist' = $\emptyset$}
-\STATE U $\leftarrow$ User //odbiorcą wiadomości będzie użytkownik
+\STATE U $\leftarrow$ User \COMMENT{odbiorcą wiadomości będzie użytkownik}
 \ELSE
-\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
+\STATE U $\leftarrow$ the first peer P' of hist' \COMMENT{odbiorcą będzie poprzedni agent z historii}
 \ENDIF
 \STATE send m(Self, U, bacl, [(p, Self, c)|hist' ])
 \STATE send m(Self, U, final, [(p, Self, c)|hist'])
@@ -87,18 +90,19 @@ Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymani
 \end{algorithmic}
 \end{algorithm}
 \begin{algorithm}[H]
+\caption{Procedura wykonywana przy odbiorze wiadomości typu Final}
 \begin{algorithmic}
 \STATE \textbf{ReceiveFinalMessage(m(Sender, Self, final, hist))}
-\STATE \textit{//hist jest postaci [(l', Sender, \TRUE), (p, Self, c)|hist']}
+\STATE \COMMENT{hist jest postaci [(l', Sender, \TRUE), (p, Self, c)|hist']}
 \STATE FINAL(l', [(p, Self, c)|hist'], Sender) $\leftarrow$ \TRUE
 \IF{$\forall$ $c^{*}$ $\in$ LOCAL(Self) and $\forall$ l $\in$ $c^{*}$, FINAL(l, [(p, Self, $c^{*}$)|hist'], \_) = \TRUE}
 \IF{hist' = $\emptyset$}
-\STATE U $\leftarrow$ User //odbiorcą wiadomości będzie Użytkownik
+\STATE U $\leftarrow$ User \COMMENT{odbiorcą wiadomości będzie Użytkownik}
 \ELSE
-\STATE U $\leftarrow$ the first peer P' of hist' //odbiorcą będzie poprzedni agent z historii
+\STATE U $\leftarrow$ the first peer P' of hist' \COMMENT{odbiorcą będzie poprzedni agent z historii}
 \ENDIF
 \ENDIF
-\STATE send m(Self,U, final, [(p, Self, \TRUE)|hist']) //usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania
+\STATE send m(Self,U, final, [(p, Self, \TRUE)|hist']) \COMMENT{usuń nadawcę wiadomości z historii i prześlij wiadomość do poprzedniego agenta w tej gałęzi wnioskowania}
 \end{algorithmic}
 \end{algorithm}
 \section{Implementacja agenta}
@@ -199,11 +203,11 @@ W każdym agencie przechowywane są dwie struktury danych związane z procesem w
 -final(q, hist) jest prawdziwe, kiedy propagacja zapytania q wewnątrz gałęzi wnioskowania, odpowiadającej historii hist jest zakończone
 
 Historia to list krotek (\textit{l}, \textit{P}, \textit{c}), gdzie:
-\begin{itemize}
-\item \textit{l} to literał, będący częścią klauzuli \textit{c} z poprzedniej krotki z listy,
-\item \textit{P} to agent,
-\item \textit{c} to klauzula, będąca konksekwencją literału \textit{l} w agencie \textit{P}.
-\end{itemize}
+\begin{description}
+\item[l] to literał, będący częścią klauzuli \textit{c} z poprzedniej krotki z listy,
+\item[P] to agent,
+\item[c] to klauzula, będąca konksekwencją literału \textit{l} w agencie \textit{P}.
+\end{description}
 Historia jest przesyłana w każdej wiadomości i pozwala ona się zorientować, jak wygląda dana gałąź wnioskowania. Dzięki niej możliwe jest wykrycie cykli
 
 \section{Interfejs}
