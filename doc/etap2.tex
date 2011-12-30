@@ -21,6 +21,7 @@ Celem projektu jest zaprojektowanie i zrealizowanie aplikacja do wnioskowania w 
 \item Algorytm zakłada, że w trakcie pracy systemu poszczególne agenty mogą się odłącząć oraz nowe agenty mogą się łączyć z systemem. Agenty dynamicznie uaktualniają swoją bazę połączeń (każdy agent przechowuje informacje o agentach, z którymi może prowadzić komunikację),
 \item Komunikacja między agentami będzie oparta na zadanym grafie połączeń. Dowolna para agentów będzie się w stanie komunikować między sobą wtedy, kiedy będzie istniało między nimi połączenie w grafie sąsiedztwa.
 \item Agenty odbierają klauzule od innych agentów i uwzględniają je w swoim procesie wnioskowania.
+\item Do określania lokalnych konsekwencji literałów otrzymanych z zewnątrz używana będzie rezolucja, np: \begin{equation} \frac{\neg a \vee b, a \vee c}{b \vee c} \end{equation}
 \end{itemize}
 \subsection{Komunikacja międzyagentowa}
 W projektowanym programie implementowany będzie mechanizm komunikacji, którego celem jest wymiana wiadomości pomiędzy agentami, prowadząca do rozstrzygnięcia, czy zapytanie zadane z zewnątrz systemu jest prawdziwe czy fałszywe.
@@ -34,11 +35,14 @@ Algorytm zakłada trzy typy wiadomości, z których każda wyzwala jedną z trze
 \end{description}
 Do przesyłania obiektów wewnątrz wiadomości zostanie wykorzystany mechanizm oferowany przez Jade, wykorzystujący ontologie (konieczność zdefiniowania klasy wiadomości i klasy ontologii, mapującej obiekty do slotów wiadmości). 
 \\\\
-Do określania lokalnych konsekwencji literałów otrzymanych z zewnątrz używana będzie rezolucja, np:
-\begin{equation}
-\frac{\neg a \vee b, a \vee c}{b \vee c}
-\end{equation}
-Poniżej zamieszczono opis w pseudo-kodzie procedur uruchamianych przy otrzymaniu poszczególnych typów wiadomości.
+
+W poniżej zamieszczonym pseudokodzie wspomnianych procedur przyjęto następujące oznaczenia:
+\begin{description}
+\item[BOTTOM] \textbf{A CHINY NIE WIEM}
+\item[Resolvent(p, Agent)] to zbiór konsekwencji literału p w bazie wiedzy agenta \textit{Agent}
+\item[LOCAL] to zmienna pomocnicza przechowująca otrzymaną klauzulę i jej lokalne konsekwencje
+\item[ACQ(l, Agent)] to zbiór Agentów, które mają połączenie z agentem \textit{Agent} i które współdzielą z nim klauzulę \textit{l}
+\end{description}
 
 \begin{algorithm}[H]
 \caption{Procedura wywoływana przy odbiorze wiadomości typu Forth}
