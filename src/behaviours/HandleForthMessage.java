@@ -2,6 +2,7 @@ package behaviours;
 
 import agent.ReasoningAgent;
 import agent.History;
+import agent.Message;
 import agent.Message.MessageType;
 import logic.Clause;
 import jade.core.Agent;
@@ -12,37 +13,39 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
 public class HandleForthMessage extends OneShotBehaviour {
-		private ACLMessage message;
+		private ACLMessage acl_message;
 		public HandleForthMessage(Agent a, ACLMessage msg) {
 			super(a);
-			message = msg;
+			acl_message = msg;
 		}
 		public void action() {
-			Clause p = message.getClause();
-			History hist = message.getHistory();
+			Message msg = (Message)acl_message.getContentObject();
+			Clause p = msg.getClause();
+			History hist = msg.getHistory();
 			if(hist.contains(p.not())) {
-				ACLMessage r1 = message.createReply();
+				ACLMessage r1 = acl_message.createReply();
 				r1.setContentObject(new Message(BACK, hist.append(new HistEl(p, myAgent, EMPTY_CLAUSE)), EMPTY_CLAUSE));
-				ACLMessage r2 = message.createReply();
+				ACLMessage r2 = acl_message.createReply();
 				r2.setContentObject(new Message(FINAL, hist.append(new HistEl(p, myAgent,TRUE_CLAUSE)), TRUE_CLAUSE));
 				myAgent.send(r1);
 				myAgent.send(r2);
 			}
-			else if agent.getKnowledge().contains(p) || hist.contains(new HistEl(p, myAgent, null)) {
-				ACLMessage r1 = message.createReply();
+			else if myAgent.getKnowledge().contains(p) || hist.contains(new HistEl(p, myAgent, null)) {
+				ACLMessage r1 = acl_message.createReply();
 				r1.setContentObject(new Message(FINAL, hist.append(new HistEl(p, myAgent, TRUE_CLAUSE)), TURE_CLAUSE));
 				myAgent.send(r1);
 			}
-			else
+			else {
 				LOCAL(SELF) <- {p} u myAgent.getKnowledge().resolvent(p)
 				if(LOCAL(SELF).contains(EMPTY_CLAUSE)) {
-					ACLMessage r1 = message.createReply();
+					ACLMessage r1 = acl_message.createReply();
 					r1.setContentObject(new Message(BACK, hist.append(new HistEl(p, myAgent, EMPTY_CLAUSE)), EMPTY_CLAUSE));
-					ACLMessage r2 = message.createReply();
+					ACLMessage r2 = acl_message.createReply();
 					r2.setContentObject(new Message(FINAL, hist.append(new HistEl(p, myAgent,TRUE_CLAUSE)), TRUE_CLAUSE));
 					myAgent.send(r1);
 					myAgent.send(r2);
 				}
+			}
 				else {
 					LOCAL(SELF) <- {c in LOCAL(SELF) | all literals in c are shared}
 					if(LOCAL.equals(EMPTY_SET)) {

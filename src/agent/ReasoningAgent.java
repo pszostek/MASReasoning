@@ -10,7 +10,10 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
 public class ReasoningAgent extends Agent {
-
+	private Knowledge knowledge;
+	public Knowledge getKnowledge() {
+		return self.knowledge;
+	}
 	protected void setup() {
 		addBehaviour(new ServeMessages(this));
 	}

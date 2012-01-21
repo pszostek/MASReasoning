@@ -9,13 +9,13 @@ import agent.Message;
 
 public class HandleFinalMessage extends OneShotBehaviour {
 	private Agent agent;
-	private ACLMessage message;
+	private ACLMessage acl_message;
 	public HandleFinalMessage(Agent a, ACLMessage msg) {
 		super(a);
-		message = msg;
+		acl_message = msg;
 	}
 	public void action() {
-		Message msg= (Message)message.getContentObject();
+		Message msg= (Message)acl_message.getContentObject();
 		History hist = msg.getHistory();
 		HistEl prev_el = hist.getPreviousElement(-1);
 		FINAL(prev_el.getLiteral(), hist.pop(), msg.getSender()) = true;
