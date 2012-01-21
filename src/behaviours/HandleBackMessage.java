@@ -23,7 +23,7 @@ public class HandleBackMessage extends OneShotBehaviour {
 			HistEl prev_el = hist.getPreviousElement(-1);
 			HistEl prevprev_ep = hist.getPreviousElement(-2);
 			BOTTOM(l`, hist.pop()) = true;
-			boolean all_true = true
+			boolean all_true = true;
 			for(Literal l: prevprev_el.getClause())
 				if(BOTTOM(l, hist.pop()) == false)
 					all_true = false;

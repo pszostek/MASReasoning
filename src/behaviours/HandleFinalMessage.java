@@ -18,7 +18,6 @@ public class HandleFinalMessage extends OneShotBehaviour {
 		Message msg= (Message)acl_message.getContentObject();
 		History hist = msg.getHistory();
 		HistEl prev_el = hist.getPreviousElement(-1);
-		FINAL(prev_el.getLiteral(), hist.pop(), msg.getSender()) = true;
-		
+	/*	FINAL(prev_el.getLiteral(), hist.pop(), msg.getSender()) = true; */
 	}
 }
