@@ -13,14 +13,14 @@ public class Knowledge {
 	}
 	public List<Clause> getResult(Literal lit)
 	{
-		List<Clause> wnioski=new ArrayList();
+		List<Clause> wnioski=new ArrayList<Clause>();
 		for(int i=0;i<lista.size();i++)
 		{
 			wnioski.add(lista.get(i).getClause(lit));
 		}
 		if(wnioski.size()==0)
 		{
-			wnioski.add(new Clause().emptyClause());
+			wnioski.add(Clause.emptyClause());
 		}
 		return wnioski;
 	}
