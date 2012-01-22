@@ -21,4 +21,9 @@ public class Literal {
 	{
 		return name;
 	}
+	public String getName()
+	{
+		return name;
+	}
+	
 }
