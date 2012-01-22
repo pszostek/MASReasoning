@@ -7,7 +7,11 @@ public class Clause {
 	private boolean isFalse;
 	private boolean isTrue;
 	private List<Literal> lista;
-	public Clause()
+
+	public static Clause emptyClause() {
+		return new Clause()
+	}
+	public Clause(boolean isEmpty = false, boolean isTrue = false, boolean isFalse = false)
 	{
 		lista= new ArrayList<Literal>();
 		check();

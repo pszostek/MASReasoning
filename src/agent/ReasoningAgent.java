@@ -1,6 +1,5 @@
 package agent;
 
-import agent.Message.MessageType;
 import behaviours.*;
 import logic.*;
 import jade.core.Agent;
