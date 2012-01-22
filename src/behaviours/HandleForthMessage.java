@@ -1,10 +1,12 @@
 package behaviours;
 
 import agent.ReasoningAgent;
-import agent.History;
-import agent.HistEl;
-import agent.Message;
-import agent.Message.MessageType;
+import messaging.History;
+import messaging.HistEl;
+import messaging.Message;
+import messaging.ForthMessage;
+import messaging.BackMessage;
+import messaging.FinalMessage;
 import logic.Clause;
 import logic.Literal;
 import jade.core.Agent;
@@ -16,10 +18,16 @@ import jade.lang.acl.UnreadableException;
 
 public class HandleForthMessage extends OneShotBehaviour {
 	private ACLMessage acl_message;
+	private ForthMessage forth_message;
 
 	public HandleForthMessage(ReasoningAgent a, ACLMessage msg) {
 		super(a);
 		acl_message = msg;
+		try {
+			forth_message = (ForthMessage)msg.getContentObject();
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	public void action() {
