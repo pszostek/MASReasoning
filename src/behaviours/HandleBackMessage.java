@@ -5,7 +5,7 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import agent.HistEl;
 import agent.History;
-import knwoledge.Literal;
+import logic.Literal;
 import agent.Message;
 import agent.Message.MessageType;
 
