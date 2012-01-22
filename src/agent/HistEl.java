@@ -37,5 +37,8 @@ public class HistEl {
 	{
 		literal = l;
 	}
+	public Literal getLiteral() {
+		return literal;
+	}
 	
 }

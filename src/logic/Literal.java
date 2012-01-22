@@ -8,20 +8,25 @@ public class Literal {
 		name = n;
 		value = true;
 	}
+	public Literal(Clause c) {
+		 this.value = c.getLiterals().get(0).getValue();
+		 this.name = c.getLiterals().get(0).getName();
+	}
 	public Literal(char n_name, boolean n_value)
 	{
 		name=n_name;
 		value=n_value;
 	}
-	public boolean not()
+	public Literal not()
 	{
-		return value = (value == true ? false : true);
+		this.value = (this.value == true ? false : true);
+		return this;
 	}
-	public char getValue()
+	public boolean getValue()
 	{
-		return name;
+		return value;
 	}
-	public String getName()
+	public char getName()
 	{
 		return name;
 	}

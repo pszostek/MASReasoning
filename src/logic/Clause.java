@@ -25,10 +25,16 @@ public class Clause {
 		c.setFalse();
 		return c;
 	}
-
+	public Clause(Literal l) {
+		lista = new ArrayList<Literal>();
+		lista.add(l);
+	}
 	public Clause()
 	{
 		lista= new ArrayList<Literal>();
+	}
+	public List<Literal> getLiterals() {
+		return lista;
 	}
 	public boolean isEmpty() {
 		return isEmpty;
