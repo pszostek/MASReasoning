@@ -9,27 +9,50 @@ public class Clause {
 	private List<Literal> lista;
 
 	public static Clause emptyClause() {
-		return new Clause()
+		Clause c = new Clause();
+		c.setEmpty();
+		return c;
 	}
-	public Clause(boolean isEmpty = false, boolean isTrue = false, boolean isFalse = false)
+
+	public static Clause trueClause() {
+		Clause c = new Clause();
+		c.setTrue();
+		return c;
+	}
+
+	public static Clause falseClause() {
+		Clause c = new Clause();
+		c.setFalse();
+		return c;
+	}
+
+	public Clause()
 	{
 		lista= new ArrayList<Literal>();
-		check();
 	}
 	public boolean isEmpty() {
 		return isEmpty;
 	}
+	private void setEmpty() {
+		isEmpty = true;
+	}
 	public boolean isTrue() {
 		return isTrue;
+	}
+	private void setTrue() {
+		isTrue = true;
 	}
 	public boolean isFalse() {
 		return isFalse;
 	}
+	private void setFalse() {
+		isFalse = true;
+	}
 	public void add(Literal literal)
 	{
 		lista.add(literal);
-		isEmpty=true;
 	}
+	/*
 	public void check()
 	{
 		boolean check=false;
@@ -47,5 +70,5 @@ public class Clause {
 			isTrue=false;
 			isFalse=true;
 		}
-	}
+	}*/
 }
