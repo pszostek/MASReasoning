@@ -8,6 +8,19 @@ public class Literal {
 		name = n;
 		value = true;
 	}
+	public Literal(String in)
+	{
+		if (in.charAt(0)=='~')
+		{
+			value=false;
+			name=in.charAt(1);
+		}
+		else
+		{
+			value=true;
+			name=in.charAt(0);
+		}
+	}
 	public Literal(Clause c) {
 		 this.value = c.getLiterals().get(0).getValue();
 		 this.name = c.getLiterals().get(0).getName();
