@@ -3,11 +3,14 @@ package behaviours;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import agent.HistEl;
-import agent.History;
+import messaging.HistEl;
+import messaging.History;
+import logic.Clause;
 import logic.Literal;
-import agent.Message;
-import agent.Message.MessageType;
+import messaging.Message;
+import messaging.BackMessage;
+import messaging.FinalMessage;
+import messaging.ForthMessage;
 
 public class HandleBackMessage extends OneShotBehaviour {
 		private Agent agent;
@@ -20,8 +23,8 @@ public class HandleBackMessage extends OneShotBehaviour {
 		public void action() {
 			Message msg= (Message)message.getContentObject();
 			History hist = msg.getHistory();
-			HistEl prev_el = hist.getPreviousElement(-1);
-			HistEl prevprev_ep = hist.getPreviousElement(-2);
+			HistEl prev_el = hist.getPreviousElement(0);
+			HistEl prevprev_ep = hist.getPreviousElement(1);
 			BOTTOM(l`, hist.pop()) = true;
 			boolean all_true = true;
 			for(Literal l: prevprev_el.getClause())
@@ -35,11 +38,11 @@ public class HandleBackMessage extends OneShotBehaviour {
 				else {
 					ACLMessage r1 = new ACLMessage();
 					r1.addReceiver(message.getSender());
-					r1.setContentObject(new Message(MessageType.BACK, hist.pop()));
+					r1.setContentObject(new BackMessage(hist.pop(), Clause.trueClause()));
 					myAgent.send(r1);
 					ACLMessage r2 = new ACLMessage();
 					r2.addReceiver(message.getSender());
-					r2.setContentObject(new Message(FINAL, hist.pop()));
+					r2.setContentObject(new FinalMessage(hist.pop(), Clause.trueClause()));
 					myAgent.send(r2);
 				}
 			}

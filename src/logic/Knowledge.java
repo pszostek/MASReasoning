@@ -14,6 +14,13 @@ public class Knowledge {
 		lista.add(n_clause);
 	}
 
+	public boolean contains(Literal l) {
+		Clause literalAsClause = new Clause(l);
+		if(lista.contains(literalAsClause))
+			return true;
+		else
+			return false;
+	}
 	public List<Clause> getResult(Literal lit) {
 		List<Clause> wnioski = new ArrayList<Clause>();
 		for (int i = 0; i < lista.size(); i++) {

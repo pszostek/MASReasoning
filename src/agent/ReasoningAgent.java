@@ -4,12 +4,6 @@ import behaviours.*;
 
 import logic.*;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ReasoningAgent extends Agent {
@@ -18,7 +12,7 @@ public class ReasoningAgent extends Agent {
 	private Knowledge knowledge;
 	private int agent_id;
 	private List<Integer> neighbours;
-	
+
 	public Knowledge getKnowledge() {
 		return this.knowledge;
 	}
@@ -29,10 +23,10 @@ public class ReasoningAgent extends Agent {
 		Object[] args = getArguments();
 		String s;
 		if (args != null) {
-			
+
 		}
 		else {
-			
+
 		}
 		addBehaviour(new ServeMessages(this));
 	}

@@ -83,6 +83,19 @@ public class Clause {
 		lista.add(literal);
 	}
 
+	public boolean equals(Object other) {
+		if( !(other instanceof Clause))
+			return false;
+		Clause c = (Clause)other;
+		if(this.getLiterals().size() != c.getLiterals().size())
+			return false;
+		for(Literal i:lista) {
+			if(!c.getLiterals().contains(i))
+				return false;
+		}
+		return true;
+	}
+	
 	public Clause getClause(Literal lit) {
 
 		for (int i = 0; i < lista.size(); i++) {

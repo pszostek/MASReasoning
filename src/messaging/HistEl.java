@@ -1,23 +1,24 @@
-package agent;
+package messaging;
 import logic.*;
+import jade.core.AID;
 
 public class HistEl {
 	private Literal literal;
-	private int agent_id;
+	private AID agent_id;
 	private Clause clause;
 	public HistEl ()
 	{
-		agent_id=-1;
+		agent_id=new AID();
 		clause=new Clause();
 	}
-	public HistEl(Clause n_clause, int n_agent_id, Literal l)
+	public HistEl(Literal l, AID n_agent_id, Clause n_clause)
 	{
 		agent_id=n_agent_id;
 		clause=n_clause;
 		literal=l;
 	}
 
-	public int getAgentId()
+	public AID getAgentId()
 	{
 		return agent_id;
 	}
@@ -25,7 +26,7 @@ public class HistEl {
 	{
 		return clause;
 	}
-	public void setAgentId(int n_agent_id)
+	public void setAgentId(AID n_agent_id)
 	{
 		agent_id=n_agent_id;
 	}
