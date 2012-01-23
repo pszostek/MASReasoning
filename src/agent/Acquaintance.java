@@ -27,5 +27,29 @@ public class Acquaintance {
 		}
 		return sasiedzi;
 	}
-
+    {
+        boolean flaga=true;
+        for(int i=0;i<agenci.size();i++)
+        {
+                if(agenci.get(i).getAgentId()==agentId)
+                {
+                        for(int j=0;j<literaly.get(i).size();j++)
+                        {
+                                if(literaly.get(i).get(j).getName()==lit.getName())
+                                {
+                                        
+                                        literaly.get(i).add(lit);
+                                }
+                        }
+                        flaga=false;
+                }
+        }
+        if(flaga)
+        {
+                agenci.add(new ReasoningAgent (agentId));
+                List<Literal> tmp =new ArrayList();
+                tmp.add(lit);
+                literaly.add(tmp);
+        }
+}
 }
