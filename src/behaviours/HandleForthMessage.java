@@ -36,23 +36,23 @@ public class HandleForthMessage extends OneShotBehaviour {
 		History hist = msg.getHistory();
 		if (hist.contains(new HistEl(p.not(), null, null))) {
 			ACLMessage r1 = acl_message.createReply();
-			r1.setContentObject(new Message(BACK, hist.push(new HistEl(p,	myAgent, Clause.emptyClause())), Clause.emptyClause()));
+			r1.setContentObject(new BackMessage(hist.push(new HistEl(p,	myAgent, Clause.emptyClause())), Clause.emptyClause()));
 			ACLMessage r2 = acl_message.createReply();
-			r2.setContentObject(new Message(FINAL, hist.push(new HistEl(p,myAgent, Clause.trueClause())), Clause.trueClause()));
+			r2.setContentObject(new FinalMessage(hist.push(new HistEl(p,myAgent, Clause.trueClause())), Clause.trueClause()));
 			myAgent.send(r1);
 			myAgent.send(r2);
 		} else if (myAgent.getKnowledge().contains(p)
 				|| hist.contains(new HistEl(new Clause(p), myAgent, null))) {
 			ACLMessage r1 = acl_message.createReply();
-			r1.setContentObject(new Message(FINAL, hist.push(new HistEl(p,myAgent, Clause.trueClause())), Clause.trueClause()));
+			r1.setContentObject(new FinalMessage(hist.push(new HistEl(p,myAgent, Clause.trueClause())), Clause.trueClause()));
 			myAgent.send(r1);
 		} else {
 			/* LOCAL(SELF) <- {p} u myAgent.getKnowledge().resolvent(p); */
 			if (LOCAL(SELF).isEmpty()) {
 				ACLMessage r1 = acl_message.createReply();
-				r1.setContentObject(new Message(BACK, hist.push(new HistEl(p,	myAgent, EMPTY_CLAUSE)), EMPTY_CLAUSE));
+				r1.setContentObject(new BackMessage(hist.push(new HistEl(p,	myAgent, Clause.emptyClause())), Clause.emptyClause()));
 				ACLMessage r2 = acl_message.createReply();
-				r2.setContentObject(new Message(FINAL, hist.push(new HistEl(p, myAgent, TRUE_CLAUSE)), TRUE_CLAUSE));
+				r2.setContentObject(new FinalMessage(hist.push(new HistEl(p, myAgent, Clause.trueClause())), Clause.trueClause()));
 				myAgent.send(r1);
 				myAgent.send(r2);
 			} else {
@@ -62,7 +62,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 				 */
 				if (LOCAL.isEmpty()) {
 					ACLMessage r1 = acl_message.createReply();
-					r1.setContentObject(new Message(BACK, hist.push(new HistEl(p, myAgent, TRUE_CLAUSE)),TRUE_CLAUSE));
+					r1.setContentObject(new backMessage(hist.push(new HistEl(p, myAgent, Clause.trueClause())),Clause.trueClause()));
 				}
 				for (Clause c : LOCAL(SELF))
 					for (Literal l : c) {
@@ -77,7 +77,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 							 */
 							ACLMessage r1 = new ACLMessage();
 							r1.addReceiver(a.getAID());
-							r1.setContentObject(new Message(FORTH, hist.push(new HistEl(p, myAgent, c)), l));
+							r1.setContentObject(new Message(hist.push(new HistEl(p, myAgent, c)), l));
 						}
 					}
 			}

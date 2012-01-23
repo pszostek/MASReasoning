@@ -9,6 +9,10 @@ public class Message implements Serializable {
 	private History hist;
 	private Clause clause;
 	
+	public Message(History h, Clause c) {
+		this.hist = h;
+		this.clause = c;
+	}
 	public History getHistory(){
 		return this.hist;
 	}
