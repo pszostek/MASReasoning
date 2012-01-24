@@ -58,6 +58,17 @@ public class Clause {
 	{
 		lista.add(literal);
 	}
+	public Clause getClause(Literal lit)
+	{
+		for(int i=0;i<lista.size();i++)
+		{
+			if (lista.get(i).getName()== lit.getName() && lista.get(i).getValue() != lit.getValue())
+			{
+				 lista.remove(i);
+			}
+		}
+		return this;
+	}
 	/*
 	public void check()
 	{

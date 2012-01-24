@@ -11,5 +11,19 @@ public class Knowledge {
 	{
 		lista.add(n_clause);
 	}
+	public List<Clause> getResult(Literal lit)
+	{
+		List<Clause> wnioski=new ArrayList();
+		for(int i=0;i<lista.size();i++)
+		{
+			wnioski.add(lista.get(i).getClause(lit));
+		}
+		if(wnioski.size()==0)
+		{
+			wnioski.add(new Clause().emptyClause());
+		}
+		return wnioski;
+	}
+
 
 }
