@@ -11,6 +11,7 @@ import logic.Clause;
 import logic.Literal;
 import logic.Knowledge;
 import jade.core.Agent;
+import jade.core.AID:
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -21,9 +22,11 @@ import agent.ReasoningAgent;
 public class HandleForthMessage extends OneShotBehaviour {
 	private ACLMessage acl_message;
 	private ForthMessage forth_message;
+	private ReasoningAgent agent;
 
 	public HandleForthMessage(ReasoningAgent a, ACLMessage msg) {
 		super(a);
+		agent = a;
 		acl_message = msg;
 		try {
 			forth_message = (ForthMessage)msg.getContentObject();
@@ -43,7 +46,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 			r2.setContentObject(new FinalMessage(hist.push(new HistEl(p,myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
 			myAgent.send(r1);
 			myAgent.send(r2);
-		} else if (myAgent.getKnowledge().contains(p) || hist.contains(new HistEl(p, myAgent.getAID(), null))) {
+		} else if (agent.getKnowledge().contains(p) || hist.contains(new HistEl(p, myAgent.getAID(), null))) {
 			ACLMessage r1 = acl_message.createReply();
 			r1.setContentObject(new FinalMessage(hist.push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
 			myAgent.send(r1);
@@ -71,14 +74,14 @@ public class HandleForthMessage extends OneShotBehaviour {
 						 * BOTTOM(l, hist.append(new HistEl(p, agent,c))) <-
 						 * false
 						 */
-						for (Agent a : ((ReasoningAgent)myAgent).getNeighbours(l)) {
+						for (AID a : agent.getNeighbours(l)) {
 							/*
 							 * FINAL(l, hist.append(new HistEl(p, agent,c)), a)
 							 * <- false
 							 */
 							ACLMessage r1 = new ACLMessage(ACLMessage.INFORM);
-							r1.addReceiver(a.getAID());
-							r1.setContentObject(new Message(hist.push(new HistEl(p, myAgent.getAID(), c)), l));
+							r1.addReceiver(a);
+							r1.setContentObject(new ForthMessage(hist.push(new HistEl(p, myAgent.getAID(), c)), new Clause(l)));
 						}
 					}
 			}

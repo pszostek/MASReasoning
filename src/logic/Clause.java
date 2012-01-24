@@ -94,6 +94,10 @@ public class Clause {
 		lista.add(literal);
 	}
 
+	public List<Literal> asLiterals() {
+		return lista;
+	}
+
 	public boolean equals(Object other) {
 		if( !(other instanceof Clause))
 			return false;
@@ -106,7 +110,7 @@ public class Clause {
 		}
 		return true;
 	}
-	
+
 	public Clause getClause(Literal lit) {
 		Clause tmp = new Clause(this);
 		boolean flag=true;

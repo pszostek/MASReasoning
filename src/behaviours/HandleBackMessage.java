@@ -7,6 +7,7 @@ import messaging.HistEl;
 import messaging.History;
 import logic.Clause;
 import logic.Literal;
+import agent.BottomEl;
 import messaging.Message;
 import messaging.BackMessage;
 import messaging.FinalMessage;
@@ -17,18 +18,17 @@ public class HandleBackMessage extends OneShotBehaviour {
 		private ACLMessage message;
 		public HandleBackMessage(Agent a, ACLMessage msg) {
 			super(a);
-			agent = a;
 			message = msg;
 		}
 		public void action() {
 			Message msg= (Message)message.getContentObject();
 			History hist = msg.getHistory();
-			HistEl prev_el = hist.getPreviousElement(0);
-			HistEl prevprev_ep = hist.getPreviousElement(1);
-			BOTTOM(l`, hist.pop()) = true;
+			HistEl prevEl = hist.getPreviousElement(0);
+			HistEl prevprev_el = hist.getPreviousElement(1);
+			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), hist.pop())) = true;
 			boolean all_true = true;
-			for(Literal l: prevprev_el.getClause())
-				if(BOTTOM(l, hist.pop()) == false)
+			for(Literal l: prevprev_el.getClause().asLiterals())
+				if(agent.getBOTTOM(new BottomEl(l, hist.pop())) == false)
 					all_true = false;
 			if(all_true) {
 				if((hist.pop().pop()).isEmpty()) {

@@ -1,6 +1,6 @@
 package agent;
 
-import agent.History;
+import messaging.History;
 import logic.Literal;
 
 public class BottomEl {

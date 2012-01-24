@@ -2,19 +2,20 @@ package agent;
 
 import java.util.ArrayList;
 import java.util.List;
+import jade.core.AID;
 import logic.Literal;
 
 /* klasa do trzymania informacji o sąsiadach */
 public class Acquaintance {
-	List<Integer> agenci;
+	List<AID> agenci;
 	List<List<Literal>> literaly;
 
-	public List<Integer> getAgenci() {
+	public List<AID> getAgenci() {
 		return agenci;
 	}
 
-	public List<Integer> getSasiedzi(Literal lit) {
-		List<Integer> sasiedzi = new ArrayList<Integer>();
+	public List<AID> getSasiedzi(Literal lit) {
+		List<AID> sasiedzi = new ArrayList<AID>();
 		for (int i = 0; i < agenci.size(); i++) {
 			for (int j = 0; j < literaly.get(j).size(); j++) {
 				if (literaly.get(i).get(j).getName() == lit.getName()) {
@@ -26,7 +27,7 @@ public class Acquaintance {
 		return sasiedzi;
 	}
 
-	public void update(int agentId, Literal lit) {
+	public void update(AID agentId, Literal lit) {
 		boolean flaga = true;
 		for (int i = 0; i < agenci.size(); i++) {
 			if (agenci.get(i) == agentId) {

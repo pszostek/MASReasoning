@@ -10,6 +10,14 @@ public class Knowledge {
 		return lista;
 	}
 
+	public Knowledge() {
+		this.lista = new ArrayList<Clause>();
+	}
+
+	public Knowledge(String knowledgeString) {
+		this.setContent(knowledgeString);
+	}
+
 	public void setClause(Clause n_clause) {
 		lista.add(n_clause);
 	}
@@ -21,6 +29,7 @@ public class Knowledge {
 		else
 			return false;
 	}
+
 	public List<Clause> getResult(Literal lit) {
 		List<Clause> wnioski = new ArrayList<Clause>();
 		for (int i = 0; i < lista.size(); i++) {
@@ -48,5 +57,4 @@ public class Knowledge {
 			}
 		}
 	}
-
 }
