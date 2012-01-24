@@ -29,6 +29,17 @@ public class Clause {
 			}
 		}
 	}
+	public Clause(Clause kla)
+	{
+		isEmpty=kla.isEmpty();
+		isTrue=kla.isTrue();
+		isFalse=kla.isFalse();
+		lista=new ArrayList();
+		for(int i=0;i<kla.getLiterals().size();i++)
+		{
+			lista.add(kla.getLiterals().get(i));
+		}
+	}
 
 	public static Clause trueClause() {
 		Clause c = new Clause();
@@ -97,14 +108,20 @@ public class Clause {
 	}
 	
 	public Clause getClause(Literal lit) {
-
-		for (int i = 0; i < lista.size(); i++) {
-			if (lista.get(i).getName() == lit.getName()
-					&& lista.get(i).getValue() != lit.getValue()) {
-				lista.remove(i);
+		Clause tmp = new Clause(this);
+		boolean flag=true;
+		for (int i = 0; i < tmp.getLiterals().size(); i++) {
+			if (tmp.getLiterals().get(i).getName() == lit.getName()
+					&& tmp.getLiterals().get(i).getValue() != lit.getValue()) {
+				tmp.getLiterals().remove(i);
+				flag=false;
 			}
 		}
-		return this;
+		if(flag)
+			return null;
+		if(tmp.getLiterals().size()==0)
+			return Clause.emptyClause();
+		return tmp;
 	}
 	/*
 	 * public void check() { boolean check=false; for (int
