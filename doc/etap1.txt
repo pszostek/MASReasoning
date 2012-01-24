@@ -1,0 +1,42 @@
+Temat: Rozproszone wnioskowanie w grupie agentów
+
+Założenia
+Logika:
+-agent przechowuje fakty, reguły i ograniczenia,
+-logika monotoniczna (niepodważalna),
+-proces wnioskowania zaczyna się od agenta, któremu zostało zadane,
+zapytanie. Agent próbuje stworzyć odpowiedź na podstawie swojej,
+własnej wiedzy. Jeśli to jest niemożliwe, "prosi" o pomoc innych
+agentów,
+-do wnioskowania użyty zostanie algorytm opisany przez P. Adjimana i
+innych w "Distributed Reasoning in a Peer-to-Peer Setting",
+-algorytm oparty o przekazywanie komunikatów między agentami,
+-wiedza używana do wnioskowania jest wiedzą abstrakcyjną,
+-system będzie przyjmował zapytania podobne do tych, obecnych w języku prolog.
+
+Przykład wiedzy (parafraza przykładu z opisu algorytmu):
+Agent1:~F+E, ~F+K+C, ~F+I, Z
+Agent2: ~I+P, ~Z+L
+Agent3: ~K+Y, ~L+~K+PL
+Agent4: ~K+L, ~C+H, ~PL+AM
+Zapytanie: F?
+
+Agenty:
+-implementacja oparta na platformie Jade,
+-agenty homogeniczne (ale o różnej wiedzy),
+-kolekcja agentów może ulec zmienia w trakcie działania programu,
+-przekazywanie wiedzy agentom przy ich tworzeniu jako argument,
+wywołania (pozwala na testowanie wsadowe),
+-zapytanie można zadać dowolnemu agentowi poprzez środowisko
+runtime'owe udostępnione przez Jade,
+-agenty mogą mieć rozłączną bazę wiedzy lub mogą mieć elementy wspólne,
+-wiedza agenta w szczególności może być pusta,
+-agenty będą poprzez żółte strony wymieniać się informacjami na temat
+term, które zawierają,
+-zakłada się bezpieczną i wiarygodną komunikację między agentami (nie
+będą implementowane żadne mechanizmu kontroli komunikacji).
+- TODO: opis połączeń między agentami: jak specyfikowany, jak
+kontrolowany, czy zmienny podczas pracy
+
+2. Opis testów/eksperymentów
+TODO
