@@ -17,15 +17,18 @@ public class HandleFinalMessage extends OneShotBehaviour {
 	public void action() {
 		Message msg= (Message)acl_message.getContentObject();
 		History hist = msg.getHistory();
-		HistEl prev_el = hist.getPreviousElement(1);
+		HistEl prev_el = hist.getPreviousElement(0);
 		hist.pop();
 	/*	FINAL(prev_el.getLiteral(), hist, msg.getSender()) = true; */
-		hist.pop();
 		HistEl prevprev_el = hist.getPreviousElement(0);
-		boolean all_true = false;
+		hist.pop();
+		boolean all_true = true;
 		for(Clause c: LOCAL)
 			for(Literal l: c) {
-				if 
+				if(FINAL(l,hist.append(new HistEl(l, myAgent.getAID(), c)), null) == false ) {
+					all_true = false;
+					break;
+				}
 			}
 	}
 }
