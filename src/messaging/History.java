@@ -1,4 +1,4 @@
-package agent;
+package messaging;
 import java.util.List;
 public class History {
 	private List<HistEl> lista;
