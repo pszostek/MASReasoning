@@ -20,7 +20,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 	private ACLMessage acl_message;
 	private ForthMessage forth_message;
 
-	public HandleForthMessage(ReasoningAgent a, ACLMessage msg) {
+	public HandleForthMessage(Agent a, ACLMessage msg) {
 		super(a);
 		acl_message = msg;
 		try {

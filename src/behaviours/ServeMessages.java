@@ -16,13 +16,19 @@ public class ServeMessages extends CyclicBehaviour {
 	}
 	public void action() {
 		ACLMessage msg  = this.myAgent.receive();
+		Object content = new Object();
 		if (msg != null) {
-			Object content = msg.getContentObject();
-			if(content instanceof String) //mamy wiadomosc od uzykownika {
-				String userMsg = content;
+			try {
+				content = msg.getContentObject();
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+			if(content instanceof String)  { //mamy wiadomosc od uzykownika
+				String userMsg = (String)content;
+				System.out.println("Got message from User:" + userMsg);
 			} else if(content instanceof Message) {
 				if(content instanceof ForthMessage) {
-					this.myAgent.addBehaviour(new HandleForthMessage(this.myAgent ,(ForthMessage)msg));
+					this.myAgent.addBehaviour(new HandleForthMessage(this.myAgent ,msg));
 				}
 				else if(content instanceof BackMessage) {
 					this.myAgent.addBehaviour(new HandleBackMessage(this.myAgent,msg));
