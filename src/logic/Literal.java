@@ -43,6 +43,13 @@ public class Literal {
 	{
 		return name;
 	}
+	public boolean equalLetter(Object other) {
+		if(!(other instanceof Literal))
+			return false;
+		Literal l = (Literal) other;
+		return getName() == l.getName();
+	}
+
 	public boolean equals(Object other) {
 		if(!(other instanceof Literal))
 			return false;
