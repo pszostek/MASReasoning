@@ -34,7 +34,7 @@ public class Clause {
 		isEmpty=kla.isEmpty();
 		isTrue=kla.isTrue();
 		isFalse=kla.isFalse();
-		lista=new ArrayList();
+		lista=new ArrayList<Literal>();
 		for(int i=0;i<kla.getLiterals().size();i++)
 		{
 			lista.add(kla.getLiterals().get(i));
@@ -96,6 +96,11 @@ public class Clause {
 
 	public List<Literal> asLiterals() {
 		return lista;
+	}
+	public Literal asLiteral() {
+		if(lista.size() != 1)
+			throw new RuntimeException();
+		return lista.get(0);
 	}
 
 	public boolean equals(Object other) {
