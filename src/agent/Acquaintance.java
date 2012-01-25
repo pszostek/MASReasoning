@@ -3,6 +3,7 @@ package agent;
 import java.util.ArrayList;
 import java.util.List;
 import jade.core.AID;
+import logic.Clause;
 import logic.Literal;
 
 /* klasa do trzymania informacji o sąsiadach */
@@ -12,6 +13,17 @@ public class Acquaintance {
 
 	public List<AID> getAgenci() {
 		return agenci;
+	}
+
+	public Boolean isWholeClauseShared(Clause c) {
+		for(Literal inputLiteral: c.asLiterals()) {
+			for(List<Literal> agentLiterals: literaly)
+				for(Literal carriedLiteral: agentLiterals) {
+				if(!carriedLiteral.equalLetter(inputLiteral))
+					return false;
+			}
+		}
+		return true;
 	}
 
 	public List<AID> getSasiedzi(Literal lit) {
