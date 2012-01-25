@@ -25,7 +25,7 @@ public class HandleBackMessage extends OneShotBehaviour {
 			History hist = msg.getHistory();
 			HistEl prevEl = hist.getPreviousElement(0);
 			HistEl prevprev_el = hist.getPreviousElement(1);
-			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), hist.pop())) = true;
+			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), hist.pop()), true);
 			boolean all_true = true;
 			for(Literal l: prevprev_el.getClause().asLiterals())
 				if(agent.getBOTTOM(new BottomEl(l, hist.pop())) == false)
