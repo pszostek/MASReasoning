@@ -119,19 +119,19 @@ public class ReasoningAgent extends Agent {
 		String neighboursString;
 
 		this.neighboursDiscovered = false;
-		if (args != null) {
-			if(args.length != 3) {
-				System.out.println("Strange number of agent run parameters!");
-			}
+		System.out.println(args.length);
+		if (args != null && args.length == 3) {
 			reasoningIDString = (String)args[0];
 			knowledgeString = (String)args[1];
 			neighboursString = (String)args[2];
+			System.out.println("Knowledge String:" + knowledgeString);
 			this.setKnowledge(new Knowledge(knowledgeString));
 			this.setReasoningID(Integer.parseInt(reasoningIDString));
 			this.setNeighbours(new Acquaintance(neighboursString));
 			this.DFRegister();
 
-			//TODO: Potraktowac jakos drugi argument: agentów
+		} else {
+			throw new RuntimeException("Agent " + getName() + ": bad number of arguments. Three are expected.");
 		}
 		this.addBehaviour(new ServeMessages(this));
 	}
