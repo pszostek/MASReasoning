@@ -13,29 +13,21 @@ import messaging.FinalMessage;
 import logic.Clause;
 import logic.Literal;
 import jade.core.AID;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
-import agent.ReasoningAgent;
 import java.util.List;
 import java.util.ArrayList;
 
 public class HandleForthMessage extends OneShotBehaviour {
+	static final long serialVersionUID = 1;
 	private ACLMessage acl_message;
-	private ForthMessage forth_message;
 	private ReasoningAgent agent;
 
-	public HandleForthMessage(ReasoningAgent a, ACLMessage msg) {
-		super(a);
-		agent = a;
+	public HandleForthMessage(ReasoningAgent myAgent, ACLMessage msg) {
+		super(myAgent);
+		agent = myAgent;
 		acl_message = msg;
-		try {
-			forth_message = (ForthMessage)msg.getContentObject();
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
 	}
 
 	public void action() {
