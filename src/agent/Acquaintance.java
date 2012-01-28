@@ -20,6 +20,7 @@ public class Acquaintance {
 	List<List<Literal>> literaly;
 
 	public Acquaintance(String s) {
+		this.reasoningIDs = new ArrayList<Integer>();
 		String[] ints = s.split(";");
 		for(String i: ints)
 			reasoningIDs.add(Integer.parseInt(i));
