@@ -8,9 +8,22 @@ import logic.Literal;
 
 /* klasa do trzymania informacji o sąsiadach */
 public class Acquaintance {
+	List<Integer> reasoningIDs;
+	public List<Integer> getReasoningIDs() {
+		return reasoningIDs;
+	}
+	public void setReasoningIDs(List<Integer> reasoningIDs) {
+		this.reasoningIDs = reasoningIDs;
+	}
+
 	List<AID> agenci;
 	List<List<Literal>> literaly;
 
+	public Acquaintance(String s) {
+		String[] ints = s.split(";");
+		for(String i: ints)
+			reasoningIDs.add(Integer.parseInt(i));
+	}
 	public List<AID> getAgenci() {
 		return agenci;
 	}
