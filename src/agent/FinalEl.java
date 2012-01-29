@@ -2,16 +2,14 @@ package agent;
 
 import messaging.History;
 import logic.Literal;
+import jade.core.AID;
 
 public class FinalEl {
     private Literal first;
     private History second;
-    private ReasoningAgent agent;
-    private boolean firstBool;
-    private boolean secondBool;
-    private boolean agentBool;
+    private AID agent;
 
-    public FinalEl(Literal first, History second,ReasoningAgent nAgent) {
+    public FinalEl(Literal first, History second, AID nAgent) {
     	super();
     	this.first = first;
     	this.second = new History(second);
@@ -56,43 +54,19 @@ public class FinalEl {
     	this.first = first;
     }
 
-    public History getSecond() {
+    public History getHistory() {
     	return second;
     }
 
     public void setHistory(History second) {
     	this.second = second;
     }
-    public ReasoningAgent getAgent()
+    public AID getAgent()
     {
     	return agent;
     }
-    public void setAgent(ReasoningAgent nAgent)
+    public void setAgent(AID nAgent)
     {
     	agent=nAgent;
-    }
-    public void setAgentBool(boolean nowy)
-    {
-    	agentBool=nowy;
-    }
-    public void setFirstBool(boolean nowy)
-    {
-    	firstBool=nowy;
-    }
-    public void setSecondBool(boolean nowy)
-    {
-    	secondBool=nowy;
-    }
-    public boolean getAgentBool()
-    {
-    	return agentBool;
-    }
-    public boolean getFirstBool()
-    {
-    	return firstBool;
-    }
-    public boolean getSecondBool()
-    {
-    	return secondBool;
     }
 }
