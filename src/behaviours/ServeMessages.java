@@ -1,7 +1,12 @@
 package behaviours;
 
+import java.io.IOException;
+
 import agent.ReasoningAgent;
 import jade.core.Agent;
+import logic.Clause;
+import logic.Literal;
+import messaging.History;
 import messaging.Message;
 import messaging.BackMessage;
 import messaging.FinalMessage;
@@ -9,6 +14,7 @@ import messaging.ForthMessage;
 import messaging.KnowledgeDiscoveryMessage;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 
 public class ServeMessages extends CyclicBehaviour {
 	static final long serialVersionUID = 1;
@@ -18,23 +24,34 @@ public class ServeMessages extends CyclicBehaviour {
 		agent = a;
 	}
 	public void action() {
-		ACLMessage msg  = this.myAgent.receive();
+		ACLMessage receivedMsg  = this.myAgent.receive();
 		Object content = new Object();
-		if (msg != null) {
+		if (receivedMsg != null) {
 			try {
-				content = msg.getContentObject();
-			} catch(Exception e) {
-				System.out.println(e.getMessage());
+				content = receivedMsg.getContentObject();
+			} catch(UnreadableException e) {
+				//mamy wiadomosc od uzykownika
+					String userMsg = receivedMsg.getContent();
+					System.out.println("Got message from User:" + userMsg);
+					if(agent.getNeighboursDiscovered() == false) {
+						this.agent.discoverNeighbours();
+					}
+					//teraz trzeba wziąć klauzulę od użytkownika, zaprzeczyć ją i wysłać wiadomość do samego siebie.. 
+					ACLMessage queryMsg = new ACLMessage(ACLMessage.INFORM);
+					queryMsg.addReceiver(this.myAgent.getAID());
+					//bierzemy stringa, z niego literal, negujemy go, z tego klauzule
+					Clause payloadClause = new Clause(new Literal(userMsg).not());
+					ForthMessage payloadMessage = new ForthMessage(new History(), payloadClause);
+					try {
+						queryMsg.setContentObject(payloadMessage);
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					}
+					myAgent.send(queryMsg);
 			}
-
-			if(content instanceof String)  { //mamy wiadomosc od uzykownika
-				String userMsg = (String)content;
-				System.out.println("Got message from User:" + userMsg);
-				if(agent.getNeighboursDiscovered() == false) {
-					this.agent.discoverNeighbours();
-				}
-			} else if(content instanceof KnowledgeDiscoveryMessage) {
-				this.myAgent.addBehaviour(new HandleKnowledgeDiscoveryMessage(this.agent, msg));
+				
+			if(content instanceof KnowledgeDiscoveryMessage) {
+				this.myAgent.addBehaviour(new HandleKnowledgeDiscoveryMessage(this.agent, receivedMsg));
 
 			} else if(content instanceof Message) {
 				if(agent.getNeighboursDiscovered() == false) {
@@ -42,13 +59,16 @@ public class ServeMessages extends CyclicBehaviour {
 				}
 				//check the the kind of the message
 				if(content instanceof ForthMessage) {
-					this.myAgent.addBehaviour(new HandleForthMessage(this.agent ,msg));
+					System.out.println("Agent " + myAgent.getAID() + " got ForthMessage from " + receivedMsg.getSender() );
+					this.myAgent.addBehaviour(new HandleForthMessage(this.agent , receivedMsg));
 				}
 				else if(content instanceof BackMessage) {
-					this.myAgent.addBehaviour(new HandleBackMessage(this.agent,msg));
+					System.out.println("Agent " + myAgent.getAID() + " got BackMessage from " + receivedMsg.getSender() );
+					this.myAgent.addBehaviour(new HandleBackMessage(this.agent, receivedMsg));
 				}
 				else if(content instanceof FinalMessage) {
-					this.myAgent.addBehaviour(new HandleFinalMessage(this.agent,msg));
+					System.out.println("Agent " + myAgent.getAID() + " got FinalMessage from " + receivedMsg.getSender() );
+					this.myAgent.addBehaviour(new HandleFinalMessage(this.agent, receivedMsg));
 				}
 			} else {
 				System.out.println("Unknown message type!");

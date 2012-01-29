@@ -96,6 +96,7 @@ public class ReasoningAgent extends Agent {
 
 	}
 	public void discoverNeighbours() {
+		System.out.println(neighbours.getAgenci().size());
 		for(AID i: this.neighbours.getAgenci()) {
 			ACLMessage message = new ACLMessage(ACLMessage.INFORM);
 			KnowledgeDiscoveryMessage msg = new KnowledgeDiscoveryMessage(knowledge.getAllLiterals());
@@ -108,36 +109,21 @@ public class ReasoningAgent extends Agent {
 			send(message);
 		}
 	}
-	/*
-	private void DFRegister() {
-		DFAgentDescription dfd = new DFAgentDescription();
-		dfd.setName(getAID());
-		ServiceDescription sd = new ServiceDescription();
-		sd.setName(Integer.toString(this.reasoningID));
-		dfd.addServices(sd);
-		try {
-			DFService.register(this, dfd);
-		} catch (FIPAException fe) {
-			fe.printStackTrace();
-		}
-	}*/
 	protected void setup() {
 		BOTTOM = new HashMap<BottomEl, Boolean>();
 		LOCAL = new ArrayList<Clause>();
 		FINAL = new HashMap<FinalEl, Boolean>();
 		Object[] args = getArguments();
 		String knowledgeString;
-		String reasoningIDString;
 		String neighboursString;
 
 		this.neighboursDiscovered = false;
-		System.out.println(args.length);
 		if (args != null && args.length == 2) {
 			knowledgeString = (String)args[0];
 			neighboursString = (String)args[1];
-			System.out.println("Knowledge String:" + knowledgeString);
-			System.out.println("Neigbours: " + neighboursString);
-			System.out.println("Local name: " + this.getName());
+			System.out.println("Agent " + this.getLocalName() + " Knowledge String: " + knowledgeString);
+			System.out.println("Agent " + this.getLocalName() + " Neigbours: " + neighboursString);
+			System.out.println("Agent " + this.getLocalName() + " name: " + this.getName());
 			this.setKnowledge(new Knowledge(knowledgeString));
 			this.setNeighbours(new Acquaintance(neighboursString));
 
