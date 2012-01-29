@@ -27,6 +27,9 @@ public class History implements Cloneable{
 		}
 		*/
 	}
+	public boolean isEmpty() {
+		return lista.size() == 0;
+	}
 	public List<HistEl> getList()
 	{
 		return lista;
@@ -34,8 +37,14 @@ public class History implements Cloneable{
 	public HistEl getPreviousElement(int stepsBack) {
 		return lista.get(lista.size()-(stepsBack+1));
 	}
-	public HistEl pop() {
-		return lista.remove(lista.size()-1);
+	public History pop() {
+		lista.remove(lista.size()-1);
+		return this;
+	}
+	public History pop(int howMany) {
+		for(int i=0; i<howMany; ++i)
+			lista.remove(lista.size()-1);
+		return this;
 	}
 	public History push(HistEl n_HistEl)
 	{
@@ -46,15 +55,15 @@ public class History implements Cloneable{
 	public boolean contains(HistEl el) {
 		for(HistEl elem: lista) {
 			if(el.getClause() != null)
-				if(el.getClause() != elem.getClause()) {
+				if(! el.getClause().equals(elem.getClause())) {
 					continue;
 				}
 			if(el.getLiteral() != null)
-				if(el.getLiteral() != elem.getLiteral()) {
+				if(! el.getLiteral().equals(elem.getLiteral())) {
 					continue;
 				}
 			if(el.getClause() != null)
-				if(el.getAgentId() != elem.getAgentId()) {
+				if(! el.getAgentId().equals(elem.getAgentId())) {
 					continue;
 				}
 			return true;
