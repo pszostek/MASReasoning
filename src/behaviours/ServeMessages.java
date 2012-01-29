@@ -6,6 +6,7 @@ import messaging.Message;
 import messaging.BackMessage;
 import messaging.FinalMessage;
 import messaging.ForthMessage;
+import messaging.KnowledgeDiscoveryMessage;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -25,14 +26,21 @@ public class ServeMessages extends CyclicBehaviour {
 			} catch(Exception e) {
 				System.out.println(e.getMessage());
 			}
-			if(agent.getNeighboursDiscovered() == false) {
-				this.agent.discoverNeighbours();
-				System.out.println("TU!");
-			}
+
 			if(content instanceof String)  { //mamy wiadomosc od uzykownika
 				String userMsg = (String)content;
 				System.out.println("Got message from User:" + userMsg);
+				if(agent.getNeighboursDiscovered() == false) {
+					this.agent.discoverNeighbours();
+				}
+			} else if(content instanceof KnowledgeDiscoveryMessage) {
+				this.myAgent.addBehaviour(new HandleKnowledgeDiscoveryMessage(this.agent, msg));
+
 			} else if(content instanceof Message) {
+				if(agent.getNeighboursDiscovered() == false) {
+					this.agent.discoverNeighbours();
+				}
+				//check the the kind of the message
 				if(content instanceof ForthMessage) {
 					this.myAgent.addBehaviour(new HandleForthMessage(this.agent ,msg));
 				}

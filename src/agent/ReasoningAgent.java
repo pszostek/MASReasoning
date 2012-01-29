@@ -4,16 +4,18 @@ import behaviours.*;
 
 import logic.*;
 import jade.core.AID;
+
+import java.io.IOException;
 import java.util.Map;
 import jade.core.Agent;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.lang.acl.ACLMessage;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+
+import messaging.KnowledgeDiscoveryMessage;
 
 public class ReasoningAgent extends Agent {
 	public static final long serialVersionUID = 1;
@@ -79,26 +81,23 @@ public class ReasoningAgent extends Agent {
 	public void addToLOCAL(Clause c) {
 		this.LOCAL.add(c);
 	}
+	public void updateNeighbour(AID agent, HashSet<Literal> literals ) {
 
-	public void discoverNeighbours() {
-		List<AID> neighbours = new ArrayList<AID>();
-		for(Integer i: this.neighbours.getReasoningIDs()) {
-			DFAgentDescription dfd = new DFAgentDescription();
-			ServiceDescription sd = new ServiceDescription();
-			sd.setName(Integer.toString(i));
-			dfd.addServices(sd);
-			try {
-				DFAgentDescription[] result = DFService.search(this, dfd);
-				AID[] agents = new AID[result.length];
-				if(agents.length != 1) {
-					System.out.println("More than one agent has a name?");
-				} else {
-					neighbours.add(agents[0]);
-				}
-			} catch (FIPAException fe) {fe.printStackTrace();}
-		}
-		this.setNeighboursDiscovered(true);
 	}
+	public void discoverNeighbours() {
+		for(AID i: this.neighbours.getAgenci()) {
+			ACLMessage message = new ACLMessage(ACLMessage.INFORM);
+			KnowledgeDiscoveryMessage msg = new KnowledgeDiscoveryMessage(knowledge.getAllLiterals());
+			try {
+				message.setContentObject(msg);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			message.addReceiver(i);
+			send(message);
+		}
+	}
+	/*
 	private void DFRegister() {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -110,7 +109,7 @@ public class ReasoningAgent extends Agent {
 		} catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
-	}
+	}*/
 	protected void setup() {
 		BOTTOM = new HashMap<BottomEl, Boolean>();
 		Object[] args = getArguments();
@@ -120,18 +119,17 @@ public class ReasoningAgent extends Agent {
 
 		this.neighboursDiscovered = false;
 		System.out.println(args.length);
-		if (args != null && args.length == 3) {
-			reasoningIDString = (String)args[0];
-			knowledgeString = (String)args[1];
-			neighboursString = (String)args[2];
+		if (args != null && args.length == 2) {
+			knowledgeString = (String)args[0];
+			neighboursString = (String)args[1];
 			System.out.println("Knowledge String:" + knowledgeString);
+			System.out.println("Neigbours: " + neighboursString);
+			System.out.println("Local name: " + this.getName());
 			this.setKnowledge(new Knowledge(knowledgeString));
-			this.setReasoningID(Integer.parseInt(reasoningIDString));
 			this.setNeighbours(new Acquaintance(neighboursString));
-			this.DFRegister();
 
 		} else {
-			throw new RuntimeException("Agent " + getName() + ": bad number of arguments. Three are expected.");
+			throw new RuntimeException("Agent " + getName() + ": bad number of arguments. Two are expected.");
 		}
 		this.addBehaviour(new ServeMessages(this));
 	}

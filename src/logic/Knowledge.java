@@ -2,6 +2,8 @@ package logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Knowledge {
 	private List<Clause> lista;
@@ -29,7 +31,16 @@ public class Knowledge {
 		else
 			return false;
 	}
-
+	public HashSet<Literal> getAllLiterals() {
+		HashSet<Literal> ret = new HashSet<Literal>();
+		for(Clause c: lista) {
+			List<Literal> literals = c.asLiterals();
+			for(Literal l: literals) {
+				ret.add(new Literal(l.getName()));
+			}
+		}
+		return ret;
+	}
 	public List<Clause> getResult(Literal lit) {
 		List<Clause> wnioski = new ArrayList<Clause>();
 		for (int i = 0; i < lista.size(); i++) {
