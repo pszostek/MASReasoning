@@ -1,7 +1,13 @@
 package messaging;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
-public class History implements Cloneable{
+public class History implements Serializable{
 	private List<HistEl> lista;
 	
 	public History()
@@ -10,13 +16,17 @@ public class History implements Cloneable{
 	}
 	public History(History his)
 	{
-		try{
-		History tmp=(History)his.clone();
-		lista=tmp.getList();
-		}
-		catch(CloneNotSupportedException e)
+		try{	
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(his);
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			History deepCopy = (History)ois.readObject();
+			lista=deepCopy.getList();
+		}catch(Exception e)
 		{
-			System.out.println("wyjatek przy klonowaniu: "+e);
+			System.out.println("Blad przy kopiowaniu historii "+e);
 		}
 		/*
 		lista = new ArrayList<HistEl>();
