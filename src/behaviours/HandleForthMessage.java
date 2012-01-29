@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import agent.ReasoningAgent;
 import agent.BottomEl;
+import agent.FinalEl;
 import messaging.History;
 import messaging.HistEl;
 import messaging.Message;
@@ -39,7 +40,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 		}
 		Literal p = new Literal(msg.getClause());
 		History hist = msg.getHistory();
-		if (hist.contains(new HistEl(p.not(), null, null))) {
+		if (hist.contains(new HistEl(new Literal(p).not(), null, null))) {
 			ACLMessage r1 = acl_message.createReply();
 
 			try{
@@ -104,10 +105,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 					for (Literal l : c.getLiterals()) {
 						agent.setBOTTOM(new BottomEl(l, hist.push(new HistEl(p, myAgent.getAID() ,c))), false);
 				   		for (AID a : agent.getNeighbours(l)) {
-							/*
-							 * FINAL(l, hist.append(new HistEl(p, agent,c)), a)
-							 * <- false
-							 */
+							agent.setFINAL(new FinalEl(l, new History(hist).push(new HistEl(p, myAgent.getAID(), c)), a), false);
 							ACLMessage r1 = new ACLMessage(ACLMessage.INFORM);
 							r1.addReceiver(a);
 							try{
