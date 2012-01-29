@@ -72,6 +72,7 @@ public class ReasoningAgent extends Agent {
 		LOCAL.add(c);
 		LOCAL.addAll(resolvent);
 	}
+
 	public void setLOCAL(List<Clause> list) {
 		LOCAL = list;
 	}
@@ -80,6 +81,16 @@ public class ReasoningAgent extends Agent {
 	}
 	public void addToLOCAL(Clause c) {
 		this.LOCAL.add(c);
+	}
+	private Map<FinalEl, Boolean> FINAL;
+	public Map<FinalEl, Boolean> getFINAL() {
+		return FINAL;
+	}
+	public Boolean getFINAL(FinalEl el) {
+		return FINAL.get(el);
+	}
+	public void setFINAL(FinalEl el, boolean b) {
+		this.FINAL.put(el, b);
 	}
 	public void updateNeighbour(AID agent, HashSet<Literal> literals ) {
 
@@ -112,6 +123,8 @@ public class ReasoningAgent extends Agent {
 	}*/
 	protected void setup() {
 		BOTTOM = new HashMap<BottomEl, Boolean>();
+		LOCAL = new ArrayList<Clause>();
+		FINAL = new HashMap<FinalEl, Boolean>();
 		Object[] args = getArguments();
 		String knowledgeString;
 		String reasoningIDString;
