@@ -61,6 +61,9 @@ public class Clause {
 
 	public Clause() {
 		lista = new ArrayList<Literal>();
+		isEmpty = false;
+		isFalse = false;
+		isTrue = false;
 	}
 
 	public List<Literal> getLiterals() {
@@ -110,6 +113,12 @@ public class Clause {
 		Clause c = (Clause)other;
 		if(this.getLiterals().size() != c.getLiterals().size())
 			return false;
+		//przypadek, kiedy klauzula jest pusta, prawdziwa lub fałszywa
+		if((isEmpty == c.isEmpty()) &&
+		   (isFalse == c.isFalse()) &&
+		   (isTrue == c.isTrue()) &&
+		   (isEmpty || isFalse || isTrue)) //jedna z flag musi być ustawiona
+			return true;
 		for(Literal i:lista) {
 			if(!c.getLiterals().contains(i))
 				return false;
