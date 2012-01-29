@@ -15,10 +15,12 @@ public class Clause {
 		return c;
 	}
 	public Clause(String in) {
+		if(lista== null)
+			lista=new ArrayList<Literal>();
 		int i = 0;
 		int j = 0;
 		while (i > -1 && in.length() > i) {
-			j = in.indexOf('+');
+			j = in.indexOf('+',i);
 			if (j >= 0) {
 				lista.add(new Literal(in.substring(i, j)));
 				i = j + 1;

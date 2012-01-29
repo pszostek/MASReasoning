@@ -55,6 +55,8 @@ public class Knowledge {
 	}
 
 	public void setContent(String in) {
+		if(lista==null)
+			lista=new ArrayList<Clause>();
 		int i = 0;
 		int j = 0;
 		while (i > -1 && in.length() > i) {

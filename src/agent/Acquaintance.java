@@ -43,7 +43,7 @@ public class Acquaintance {
 	public List<AID> getSasiedzi(Literal lit) {
 		List<AID> sasiedzi = new ArrayList<AID>();
 		for (int i = 0; i < agenci.size(); i++) {
-			for (int j = 0; j < literaly.get(j).size(); j++) {
+			for (int j = 0; j < literaly.get(i).size(); j++) {
 				if (literaly.get(i).get(j).getName() == lit.getName()) {
 					sasiedzi.add(agenci.get(i));
 					j = literaly.get(i).size();

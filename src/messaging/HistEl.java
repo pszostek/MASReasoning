@@ -11,11 +11,17 @@ public class HistEl {
 		agent_id=new AID();
 		clause=new Clause();
 	}
-	public HistEl(Literal l, AID n_agent_id, Clause n_clause)
+	public HistEl(Literal l,AID n_agent_id, Clause n_clause)
 	{
 		agent_id=n_agent_id;
-		clause=n_clause;
-		literal=l;
+		clause=new Clause(n_clause);
+		literal=new Literal(l);
+	}
+	public HistEl(HistEl his)
+	{
+		agent_id=his.getAgentId();
+		clause=new Clause(his.getClause());
+		literal=new Literal(his.getLiteral());
 	}
 
 	public AID getAgentId()
