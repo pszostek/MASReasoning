@@ -14,7 +14,6 @@ public class Clause {
 		c.setEmpty();
 		return c;
 	}
-
 	public Clause(String in) {
 		int i = 0;
 		int j = 0;
@@ -37,7 +36,7 @@ public class Clause {
 		lista=new ArrayList<Literal>();
 		for(int i=0;i<kla.getLiterals().size();i++)
 		{
-			lista.add(kla.getLiterals().get(i));
+			lista.add(new Literal(kla.getLiterals().get(i)));
 		}
 	}
 

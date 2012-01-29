@@ -8,6 +8,11 @@ public class Literal {
 		name = n;
 		value = true;
 	}
+	public Literal(Literal lit)
+	{
+		name=lit.getName();
+		value=lit.getValue();
+	}
 	public Literal(String in)
 	{
 		if (in.charAt(0)=='~')
