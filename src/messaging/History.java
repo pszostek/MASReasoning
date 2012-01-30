@@ -16,26 +16,33 @@ public class History implements Serializable{
 	}
 	public History(History his)
 	{
-		try{	
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(his);
-			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			History deepCopy = (History)ois.readObject();
-			lista=deepCopy.getList();
-		}catch(Exception e)
-		{
-			System.out.println("Blad przy kopiowaniu historii "+e);
+		if(his.lista.size() == 0)
+			lista=new ArrayList<HistEl>();
+		else {
+			try{	
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(baos);
+				oos.writeObject(his);
+				ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+				ObjectInputStream ois = new ObjectInputStream(bais);
+				History deepCopy = (History)ois.readObject();
+				lista=deepCopy.getList();
+			}catch(Exception e)
+			{
+				System.out.println("Blad przy kopiowaniu historii "+e);
+			}
 		}
-		/*
-		lista = new ArrayList<HistEl>();
-		
-		for(int i=0;i<his.getList().size();i++)
-		{
-			lista.add(new HistEl(his.getList().get(i)));
-		}
-		*/
+	}
+	public boolean equals(Object other) {
+		if(!(other instanceof History))
+			return false;
+		History o = (History)other;
+		if(o.lista.size() != lista.size())
+			return false;
+		for(int i=0; i<lista.size(); ++i)
+			if(!(lista.get(i).equals(o.lista.get(i))))
+				return false;
+		return true;
 	}
 	public boolean isEmpty() {
 		return lista.size() == 0;
@@ -50,6 +57,9 @@ public class History implements Serializable{
 	public History pop() {
 		lista.remove(lista.size()-1);
 		return this;
+	}
+	public int size() {
+		return lista.size();
 	}
 	public History pop(int howMany) {
 		for(int i=0; i<howMany; ++i)

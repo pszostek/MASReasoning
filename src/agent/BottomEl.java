@@ -8,7 +8,6 @@ public class BottomEl {
     private History second;
 
     public BottomEl(Literal first, History second) {
-    	super();
     	this.first = first;
     	this.second = second;
     }

@@ -68,10 +68,13 @@ public class HandleForthMessage extends OneShotBehaviour {
 			myAgent.send(r1);
 		} else {
 			agent.setLOCAL( new Clause(p), agent.getKnowledge().getResult(p));
+			System.out.println(agent.getLOCAL().size());
 			if (agent.inLOCAL(Clause.emptyClause())) {
 				ACLMessage r1 = acl_message.createReply();
 				try {
-					r1.setContentObject(new BackMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.emptyClause())), Clause.emptyClause()));
+					History newHistory = new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.emptyClause()));
+					BackMessage ret = new BackMessage(newHistory, Clause.emptyClause());
+					r1.setContentObject(ret);;
 				} catch(IOException ie) {
 					ie.printStackTrace();
 				}
@@ -100,6 +103,8 @@ public class HandleForthMessage extends OneShotBehaviour {
 					}catch(IOException ie) {
 						ie.printStackTrace();
 					}
+					myAgent.send(r1);
+					return;
 				}
 				for (Clause c : agent.getLOCAL()) {
 					for (Literal l : c.getLiterals()) {
@@ -109,10 +114,12 @@ public class HandleForthMessage extends OneShotBehaviour {
 							ACLMessage r1 = new ACLMessage(ACLMessage.INFORM);
 							r1.addReceiver(a);
 							try{
-								r1.setContentObject(new ForthMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), c)), new Clause(l)));
+								History newHist = new History(hist).push(new HistEl(p, myAgent.getAID(), c));
+								r1.setContentObject(new ForthMessage(newHist, new Clause(l)));
 							} catch(IOException ie) {
 								ie.printStackTrace();
-							} //catch
+							}
+							myAgent.send(r1);//catch
 						} //for AID a
 					} //for Literal l
 				} //for Clause c

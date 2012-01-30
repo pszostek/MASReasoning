@@ -26,7 +26,7 @@ public class Acquaintance {
 				agenci.add(new AID(i, AID.ISLOCALNAME));
 				//zainicjalizuj literaly agentow pustymi tablicami
 				literaly.add(new ArrayList<Literal>());
-			}	
+			}
 		}
 	}
 	public List<AID> getAgenci() {

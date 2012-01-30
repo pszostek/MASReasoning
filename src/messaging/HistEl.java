@@ -25,7 +25,15 @@ public class HistEl implements Serializable{
 		clause=new Clause(his.getClause());
 		literal=new Literal(his.getLiteral());
 	}
-
+	public boolean equals(Object other) {
+		if(!(other instanceof HistEl))
+			return false;
+		HistEl o = (HistEl)other;
+		return (literal.equals(o.literal) &&
+		   agent_id.equals(o.agent_id) &&
+		   clause.equals(o.clause)
+			);
+	}
 	public AID getAgentId()
 	{
 		return agent_id;

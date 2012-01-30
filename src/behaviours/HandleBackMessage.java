@@ -23,6 +23,7 @@ public class HandleBackMessage extends OneShotBehaviour {
 		public HandleBackMessage(ReasoningAgent a, ACLMessage msg) {
 			super(a);
 			message = msg;
+			agent = a;
 		}
 		public void action() {
 			Message msg = null;
@@ -36,11 +37,17 @@ public class HandleBackMessage extends OneShotBehaviour {
 			hist.pop();
 			HistEl prevprev_el = hist.getPreviousElement(0);
 			hist.pop();
-			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), new History(hist).push(prevprev_el)), true);
+
+			History newHist = new History(hist).push(prevprev_el);
+			BottomEl newBottom = new BottomEl(prevEl.getLiteral(), newHist);
+
+			agent.setBOTTOM(newBottom, true);
 			boolean all_true = true;
-			for(Literal l: prevprev_el.getClause().asLiterals())
-				if(agent.getBOTTOM(new BottomEl(l, new History(hist))) == false)
+			for(Literal l: prevprev_el.getClause().asLiterals()) {
+				BottomEl check = new BottomEl(l, new History(hist));
+				if(agent.getBOTTOM(check) == false)
 					all_true = false;
+			}
 			if(all_true) {
 				if(hist.isEmpty()) {
 					System.out.println("back!!!!");

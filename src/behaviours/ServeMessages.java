@@ -12,11 +12,11 @@ import messaging.BackMessage;
 import messaging.FinalMessage;
 import messaging.ForthMessage;
 import messaging.KnowledgeDiscoveryMessage;
-import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 
-public class ServeMessages extends CyclicBehaviour {
+public class ServeMessages extends SimpleBehaviour {
 	static final long serialVersionUID = 1;
 	private ReasoningAgent agent;
 
@@ -26,6 +26,7 @@ public class ServeMessages extends CyclicBehaviour {
 	}
 
 	public void action() {
+		this.block(12);
 		ACLMessage receivedMsg = this.myAgent.receive();
 		Object content = new Object();
 		boolean gotMsgFromUser = false;
@@ -42,6 +43,7 @@ public class ServeMessages extends CyclicBehaviour {
 				System.out.println("Got message from User:" + userMsg);
 				if (agent.getNeighboursDiscovered() == false) {
 					this.agent.discoverNeighbours();
+					block(1000);
 				}
 				// teraz trzeba wziąć klauzulę od użytkownika, zaprzeczyć ją i
 				// wysłać wiadomość do samego siebie..
@@ -67,13 +69,13 @@ public class ServeMessages extends CyclicBehaviour {
 			} else if (content instanceof Message) {
 				if (agent.getNeighboursDiscovered() == false) {
 					this.agent.discoverNeighbours();
+					block(1000);
 				}
 				// check the the kind of the message
 				if (content instanceof ForthMessage) {
 					System.out.println("Agent " + myAgent.getName()
 							+ " got ForthMessage from "
 							+ receivedMsg.getSender().getName());
-					System.out.println(agent.getNeighbours().size());
 					this.myAgent.addBehaviour(new HandleForthMessage(
 							this.agent, receivedMsg));
 				} else if (content instanceof BackMessage) {
@@ -95,5 +97,8 @@ public class ServeMessages extends CyclicBehaviour {
 						+ receivedMsg.getSender().getName());
 			}
 		}
+	}
+	public boolean done() {
+		return false;
 	}
 }
