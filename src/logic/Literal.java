@@ -56,7 +56,6 @@ public class Literal implements Serializable{
 		Literal l = (Literal) other;
 		return getName() == l.getName();
 	}
-
 	public boolean equals(Object other) {
 		if(!(other instanceof Literal))
 			return false;

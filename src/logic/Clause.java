@@ -42,63 +42,50 @@ public class Clause implements Serializable{
 			lista.add(new Literal(kla.getLiterals().get(i)));
 		}
 	}
-
 	public static Clause trueClause() {
 		Clause c = new Clause();
 		c.setTrue();
 		return c;
 	}
-
 	public static Clause falseClause() {
 		Clause c = new Clause();
 		c.setFalse();
 		return c;
 	}
-
 	public Clause(Literal l) {
 		lista = new ArrayList<Literal>();
 		lista.add(l);
 	}
-
 	public Clause() {
 		lista = new ArrayList<Literal>();
 		isEmpty = false;
 		isFalse = false;
 		isTrue = false;
 	}
-
 	public List<Literal> getLiterals() {
 		return lista;
 	}
-
 	public boolean isEmpty() {
 		return isEmpty;
 	}
-
 	private void setEmpty() {
 		isEmpty = true;
 	}
-
 	public boolean isTrue() {
 		return isTrue;
 	}
-
 	private void setTrue() {
 		isTrue = true;
 	}
-
 	public boolean isFalse() {
 		return isFalse;
 	}
-
 	private void setFalse() {
 		isFalse = true;
 	}
-
 	public void add(Literal literal) {
 		lista.add(literal);
 	}
-
 	public List<Literal> asLiterals() {
 		return lista;
 	}
@@ -107,7 +94,6 @@ public class Clause implements Serializable{
 			throw new RuntimeException();
 		return lista.get(0);
 	}
-
 	public boolean equals(Object other) {
 		if( !(other instanceof Clause))
 			return false;
@@ -126,7 +112,6 @@ public class Clause implements Serializable{
 		}
 		return true;
 	}
-
 	public Clause getClause(Literal lit) {
 		Clause tmp = new Clause(this);
 		boolean flag=true;
