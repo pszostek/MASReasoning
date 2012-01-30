@@ -25,6 +25,11 @@ public class HandleKnowledgeDiscoveryMessage extends OneShotBehaviour {
 		} catch (UnreadableException ie) {
 			ie.printStackTrace();
 		}
+		if(kdm.isAnswer() == false) {
+			KnowledgeDiscoveryMessage response = new KnowledgeDiscoveryMessage(agent.getKnowledge().getAllLiterals(), true);
+		}
+		if(agent.getNeighbours().size() == agent.neigboursKnown())
+			agent.setNeighboursDiscovered(true);
 		System.out.print("MESSAGE ");
 		System.out.println("ID: " + myAgent.getName());
 	}

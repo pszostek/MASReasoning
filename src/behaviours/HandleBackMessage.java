@@ -33,29 +33,30 @@ public class HandleBackMessage extends OneShotBehaviour {
 			}
 			History hist = msg.getHistory();
 			HistEl prevEl = hist.getPreviousElement(0);
-			HistEl prevprev_el = hist.getPreviousElement(1);
-			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), new History(hist).pop(2)), true);
+			hist.pop();
+			HistEl prevprev_el = hist.getPreviousElement(0);
+			hist.pop();
+			agent.setBOTTOM(new BottomEl(prevEl.getLiteral(), new History(hist).push(prevprev_el)), true);
 			boolean all_true = true;
 			for(Literal l: prevprev_el.getClause().asLiterals())
-				if(agent.getBOTTOM(new BottomEl(l, hist.pop())) == false)
+				if(agent.getBOTTOM(new BottomEl(l, new History(hist))) == false)
 					all_true = false;
 			if(all_true) {
-				if((hist.pop().pop()).isEmpty()) {
-					System.out.println("back");
-					System.out.println("final");
+				if(hist.isEmpty()) {
+					System.out.println("back!!!!");
 				} else {
 					ACLMessage r1 = new ACLMessage(ACLMessage.INFORM);
-					r1.addReceiver(message.getSender());
+					r1.addReceiver(hist.peekLast().getAgentId());
 					try{
-						r1.setContentObject(new BackMessage(hist.pop(), Clause.trueClause()));
+						r1.setContentObject(new BackMessage(new History(hist).push(prevprev_el), Clause.trueClause()));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 					myAgent.send(r1);
 					ACLMessage r2 = new ACLMessage(ACLMessage.INFORM);
-					r2.addReceiver(message.getSender());
+					r2.addReceiver(hist.peekLast().getAgentId());
 					try{
-					r2.setContentObject(new FinalMessage(hist.pop(), Clause.trueClause()));
+						r2.setContentObject(new FinalMessage(new History(hist).push(prevprev_el), Clause.trueClause()));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

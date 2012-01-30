@@ -1,6 +1,8 @@
 package logic;
 
-public class Literal {
+import java.io.Serializable;
+
+public class Literal implements Serializable{
 	private char name;
 	private boolean value;
 	public Literal(char n)

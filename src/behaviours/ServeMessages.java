@@ -51,6 +51,7 @@ public class ServeMessages extends CyclicBehaviour {
 			}
 				
 			if(content instanceof KnowledgeDiscoveryMessage) {
+				System.out.println("Agent " + myAgent.getName() + " got KnowledgeDiscoveryMessage from " + receivedMsg.getSender() );
 				this.myAgent.addBehaviour(new HandleKnowledgeDiscoveryMessage(this.agent, receivedMsg));
 
 			} else if(content instanceof Message) {
@@ -59,15 +60,15 @@ public class ServeMessages extends CyclicBehaviour {
 				}
 				//check the the kind of the message
 				if(content instanceof ForthMessage) {
-					System.out.println("Agent " + myAgent.getAID() + " got ForthMessage from " + receivedMsg.getSender() );
+					System.out.println("Agent " + myAgent.getName() + " got ForthMessage from " + receivedMsg.getSender() );
 					this.myAgent.addBehaviour(new HandleForthMessage(this.agent , receivedMsg));
 				}
 				else if(content instanceof BackMessage) {
-					System.out.println("Agent " + myAgent.getAID() + " got BackMessage from " + receivedMsg.getSender() );
+					System.out.println("Agent " + myAgent.getName() + " got BackMessage from " + receivedMsg.getSender() );
 					this.myAgent.addBehaviour(new HandleBackMessage(this.agent, receivedMsg));
 				}
 				else if(content instanceof FinalMessage) {
-					System.out.println("Agent " + myAgent.getAID() + " got FinalMessage from " + receivedMsg.getSender() );
+					System.out.println("Agent " + myAgent.getName() + " got FinalMessage from " + receivedMsg.getSender() );
 					this.myAgent.addBehaviour(new HandleFinalMessage(this.agent, receivedMsg));
 				}
 			} else {

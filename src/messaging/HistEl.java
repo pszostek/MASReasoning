@@ -1,8 +1,9 @@
 package messaging;
 import logic.*;
 import jade.core.AID;
+import java.io.Serializable;
 
-public class HistEl {
+public class HistEl implements Serializable{
 	private Literal literal;
 	private AID agent_id;
 	private Clause clause;
@@ -13,9 +14,10 @@ public class HistEl {
 	}
 	public HistEl(Literal l,AID n_agent_id, Clause n_clause)
 	{
+		literal=l;
 		agent_id=n_agent_id;
-		clause=new Clause(n_clause);
-		literal=new Literal(l);
+		clause=n_clause;
+
 	}
 	public HistEl(HistEl his)
 	{

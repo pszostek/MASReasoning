@@ -44,14 +44,14 @@ public class HandleForthMessage extends OneShotBehaviour {
 			ACLMessage r1 = acl_message.createReply();
 
 			try{
-				r1.setContentObject(new BackMessage(hist.push(new HistEl(p,	myAgent.getAID(), Clause.emptyClause())), Clause.emptyClause()));
+				r1.setContentObject(new BackMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.emptyClause())), Clause.emptyClause()));
 			}catch(IOException ie) {
 				ie.printStackTrace();
 			}
 
 			ACLMessage r2 = acl_message.createReply();
 			try{
-				r2.setContentObject(new FinalMessage(hist.push(new HistEl(p,myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
+				r2.setContentObject(new FinalMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
 			}catch(IOException ie) {
 				ie.printStackTrace();
 			}
@@ -61,7 +61,7 @@ public class HandleForthMessage extends OneShotBehaviour {
 		} else if (agent.getKnowledge().contains(p) || hist.contains(new HistEl(p, myAgent.getAID(), null))) {
 			ACLMessage r1 = acl_message.createReply();
 			try{
-				r1.setContentObject(new FinalMessage(hist.push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
+				r1.setContentObject(new FinalMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
 			} catch(IOException ie) {
 				ie.printStackTrace();
 			}
@@ -71,14 +71,14 @@ public class HandleForthMessage extends OneShotBehaviour {
 			if (agent.inLOCAL(Clause.emptyClause())) {
 				ACLMessage r1 = acl_message.createReply();
 				try {
-					r1.setContentObject(new BackMessage(hist.push(new HistEl(p,	myAgent.getAID(), Clause.emptyClause())), Clause.emptyClause()));
+					r1.setContentObject(new BackMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.emptyClause())), Clause.emptyClause()));
 				} catch(IOException ie) {
 					ie.printStackTrace();
 				}
 
 				ACLMessage r2 = acl_message.createReply();
 				try{
-					r2.setContentObject(new FinalMessage(hist.push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
+					r2.setContentObject(new FinalMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())), Clause.trueClause()));
 				} catch(IOException ie) {
 					ie.printStackTrace();
 				}
@@ -96,20 +96,20 @@ public class HandleForthMessage extends OneShotBehaviour {
 				if (agent.getLOCAL().size() == 0) {
 					ACLMessage r1 = acl_message.createReply();
 					try{
-						r1.setContentObject(new BackMessage(hist.push(new HistEl(p, myAgent.getAID(), Clause.trueClause())),Clause.trueClause()));
+						r1.setContentObject(new BackMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())),Clause.trueClause()));
 					}catch(IOException ie) {
 						ie.printStackTrace();
 					}
 				}
 				for (Clause c : agent.getLOCAL()) {
 					for (Literal l : c.getLiterals()) {
-						agent.setBOTTOM(new BottomEl(l, hist.push(new HistEl(p, myAgent.getAID() ,c))), false);
+						agent.setBOTTOM(new BottomEl(l, new History(hist).push(new HistEl(p, myAgent.getAID() ,c))), false);
 				   		for (AID a : agent.getNeighbours(l)) {
 							agent.setFINAL(new FinalEl(l, new History(hist).push(new HistEl(p, myAgent.getAID(), c)), a), false);
 							ACLMessage r1 = new ACLMessage(ACLMessage.INFORM);
 							r1.addReceiver(a);
 							try{
-								r1.setContentObject(new ForthMessage(hist.push(new HistEl(p, myAgent.getAID(), c)), new Clause(l)));
+								r1.setContentObject(new ForthMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), c)), new Clause(l)));
 							} catch(IOException ie) {
 								ie.printStackTrace();
 							} //catch

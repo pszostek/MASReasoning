@@ -8,27 +8,25 @@ import logic.Literal;
 
 /* klasa do trzymania informacji o sąsiadach */
 public class Acquaintance {
-	List<Integer> reasoningIDs;
-	public List<Integer> getReasoningIDs() {
-		return reasoningIDs;
-	}
-	public void setReasoningIDs(List<Integer> reasoningIDs) {
-		this.reasoningIDs = reasoningIDs;
-	}
-
 	List<AID> agenci;
 	List<List<Literal>> literaly;
 
 	public Acquaintance(String s) {
-		this.reasoningIDs = new ArrayList<Integer>();
-		String[] ints = s.split(";");
+		this.agenci = new ArrayList<AID>();
+		String[] ints = s.split(".");
+		//dodaj identyfikatory do listy sasiadow
 		for(String i: ints)
-			reasoningIDs.add(Integer.parseInt(i));
+			agenci.add(new AID(i, AID.ISLOCALNAME));
+		//zainicjalizuj literaly agentow pustymi tablicami
+		for(int i=0; i<agenci.size(); ++i)
+			literaly.add(new ArrayList<Literal>());
 	}
 	public List<AID> getAgenci() {
 		return agenci;
 	}
-
+	public int size() {
+		return agenci.size();
+	}
 	public Boolean isWholeClauseShared(Clause c) {
 		for(Literal inputLiteral: c.asLiterals()) {
 			for(List<Literal> agentLiterals: literaly)
@@ -38,6 +36,14 @@ public class Acquaintance {
 			}
 		}
 		return true;
+	}
+
+	public int neighboursKnown() {
+		int ret = 0;
+		for(int i=0; i<literaly.size(); ++i)
+			if(literaly.get(i).size() != 0)
+				++ret;
+		return ret;
 	}
 
 	public List<AID> getSasiedzi(Literal lit) {

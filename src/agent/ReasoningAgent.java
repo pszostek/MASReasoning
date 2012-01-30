@@ -87,19 +87,30 @@ public class ReasoningAgent extends Agent {
 		return FINAL;
 	}
 	public Boolean getFINAL(FinalEl el) {
+		if(el.getAgent() == null) { //przypadek, w ktorym agent nie jest wazny
+			for(FinalEl i:FINAL.keySet()) {
+				if(i.getHistory().equals(el.getHistory()) &&
+				   i.getLiteral().equals(el.getLiteral()))
+				   return FINAL.get(i);
+			}
+		}
 		return FINAL.get(el);
 	}
 	public void setFINAL(FinalEl el, boolean b) {
 		this.FINAL.put(el, b);
 	}
 	public void updateNeighbour(AID agent, HashSet<Literal> literals ) {
-
+		for(Literal l: literals)
+			this.neighbours.update(agent, l);
+	}
+	public int neigboursKnown() {
+		return neighbours.neighboursKnown();
 	}
 	public void discoverNeighbours() {
-		System.out.println(neighbours.getAgenci().size());
+		System.out.println("Agent " + getName() + " discovers neighbours");
 		for(AID i: this.neighbours.getAgenci()) {
 			ACLMessage message = new ACLMessage(ACLMessage.INFORM);
-			KnowledgeDiscoveryMessage msg = new KnowledgeDiscoveryMessage(knowledge.getAllLiterals());
+			KnowledgeDiscoveryMessage msg = new KnowledgeDiscoveryMessage(knowledge.getAllLiterals(), false);
 			try {
 				message.setContentObject(msg);
 			} catch (IOException e) {

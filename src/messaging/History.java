@@ -61,7 +61,9 @@ public class History implements Serializable{
 		lista.add(n_HistEl);
 		return this;
 	}
-
+	public HistEl peekLast() {
+		return lista.get(lista.size()-1);
+	}
 	public boolean contains(HistEl el) {
 		for(HistEl elem: lista) {
 			if(el.getClause() != null)

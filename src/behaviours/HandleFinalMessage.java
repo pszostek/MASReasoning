@@ -37,7 +37,7 @@ public class HandleFinalMessage extends OneShotBehaviour {
 		boolean all_true = true;
 		for(Clause c: agent.getLOCAL())
 			for(Literal l: c.asLiterals()) {
-				if(agent.getFINAL(new FinalEl(l, new History(hist).push(new HistEl(l, myAgent.getAID(), c)), agent.getAID())) == false ) {
+				if(agent.getFINAL(new FinalEl(l, new History(hist).push(new HistEl(l, myAgent.getAID(), c)), null)) == false ) {
 					all_true = false;
 					break;
 				}

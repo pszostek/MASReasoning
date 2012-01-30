@@ -1,9 +1,10 @@
 package logic;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
-public class Clause {
+public class Clause implements Serializable{
 	private boolean isEmpty;
 	private boolean isFalse;
 	private boolean isTrue;
@@ -142,10 +143,4 @@ public class Clause {
 			return Clause.emptyClause();
 		return tmp;
 	}
-	/*
-	 * public void check() { boolean check=false; for (int
-	 * i=0;i<lista.size();i++) { check=(check||lista.get(i).getValue()); } if
-	 * (check) { isTrue=true; isFalse=false; } else { isTrue=false;
-	 * isFalse=true; } }
-	 */
 }
