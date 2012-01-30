@@ -13,13 +13,21 @@ public class Acquaintance {
 
 	public Acquaintance(String s) {
 		this.agenci = new ArrayList<AID>();
-		String[] ints = s.split(".");
-		//dodaj identyfikatory do listy sasiadow
-		for(String i: ints)
-			agenci.add(new AID(i, AID.ISLOCALNAME));
-		//zainicjalizuj literaly agentow pustymi tablicami
-		for(int i=0; i<agenci.size(); ++i)
+		this.literaly = new ArrayList<List<Literal>>();
+
+		if(s.indexOf('.') == -1) {
+			agenci.add(new AID(s, AID.ISLOCALNAME));
 			literaly.add(new ArrayList<Literal>());
+		} else {
+			String[] ints = s.split(".");
+
+			//dodaj identyfikatory do listy sasiadow
+			for(String i: ints) {
+				agenci.add(new AID(i, AID.ISLOCALNAME));
+				//zainicjalizuj literaly agentow pustymi tablicami
+				literaly.add(new ArrayList<Literal>());
+			}	
+		}
 	}
 	public List<AID> getAgenci() {
 		return agenci;
@@ -60,23 +68,13 @@ public class Acquaintance {
 	}
 
 	public void update(AID agentId, Literal lit) {
-		boolean flaga = true;
 		for (int i = 0; i < agenci.size(); i++) {
-			if (agenci.get(i) == agentId) {
-				for (int j = 0; j < literaly.get(i).size(); j++) {
-					if (literaly.get(i).get(j).getName() == lit.getName()) {
-
-						literaly.get(i).add(lit);
-					}
-				}
-				flaga = false;
+			if (agenci.get(i).equals(agentId)) {
+				if(!literaly.get(i).contains(lit))
+					literaly.get(i).add(lit);
+				else
+					System.out.println("Already inside");
 			}
-		}
-		if (flaga) {
-			agenci.add(agentId);
-			List<Literal> tmp = new ArrayList<Literal>();
-			tmp.add(lit);
-			literaly.add(tmp);
 		}
 	}
 }

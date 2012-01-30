@@ -107,7 +107,9 @@ public class ReasoningAgent extends Agent {
 		return neighbours.neighboursKnown();
 	}
 	public void discoverNeighbours() {
-		System.out.println("Agent " + getName() + " discovers neighbours");
+		if(neighboursDiscovered)
+			return;
+		System.out.println("Agent " + getName() + " discovers neighbours (" + this.neighbours.size() + ")");
 		for(AID i: this.neighbours.getAgenci()) {
 			ACLMessage message = new ACLMessage(ACLMessage.INFORM);
 			KnowledgeDiscoveryMessage msg = new KnowledgeDiscoveryMessage(knowledge.getAllLiterals(), false);
@@ -117,8 +119,12 @@ public class ReasoningAgent extends Agent {
 				e.printStackTrace();
 			}
 			message.addReceiver(i);
+			System.out.println("Agent " + getName()
+					+ " sends KnowledgeDiscoveryMessage to "
+					+ i);
 			send(message);
 		}
+		neighboursDiscovered = true;
 	}
 	protected void setup() {
 		BOTTOM = new HashMap<BottomEl, Boolean>();

@@ -1,5 +1,7 @@
 package behaviours;
 
+import java.io.IOException;
+
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -22,15 +24,24 @@ public class HandleKnowledgeDiscoveryMessage extends OneShotBehaviour {
 		try {
 			kdm = (KnowledgeDiscoveryMessage)(msg.getContentObject());
 			agent.updateNeighbour(msg.getSender(), kdm.getLiterals());
+			if(agent.getNeighbours().size() == agent.neigboursKnown())
+				agent.setNeighboursDiscovered(true);
 		} catch (UnreadableException ie) {
 			ie.printStackTrace();
 		}
 		if(kdm.isAnswer() == false) {
 			KnowledgeDiscoveryMessage response = new KnowledgeDiscoveryMessage(agent.getKnowledge().getAllLiterals(), true);
+			ACLMessage aclResponse = msg.createReply();
+			try {
+				aclResponse.setContentObject(response);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			agent.send(aclResponse);
+			System.out.println("Agent " + myAgent.getName()
+					+ " sends back KnowledgeDiscoveryMessage to "
+					+ msg.getSender().getName() );
 		}
-		if(agent.getNeighbours().size() == agent.neigboursKnown())
-			agent.setNeighboursDiscovered(true);
-		System.out.print("MESSAGE ");
-		System.out.println("ID: " + myAgent.getName());
+
 	}
 }
