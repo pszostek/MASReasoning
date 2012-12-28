@@ -66,7 +66,10 @@ public class ReasoningAgent extends Agent {
 
 	private List<Clause> LOCAL;
 	public Boolean inLOCAL(Clause c) {
-		return LOCAL.contains(c);
+		for(Clause cLocal: LOCAL)
+			if(cLocal.equals(c))
+				return true;
+		return false;
 	}
 	public void setLOCAL(Clause c, List<Clause> resolvent) {
 		LOCAL = new ArrayList<Clause>();

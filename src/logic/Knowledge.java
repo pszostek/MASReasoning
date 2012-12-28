@@ -26,10 +26,10 @@ public class Knowledge {
 
 	public boolean contains(Literal l) {
 		Clause literalAsClause = new Clause(l);
-		if(lista.contains(literalAsClause))
-			return true;
-		else
-			return false;
+		for(Clause c: lista)
+			if(c.equals(literalAsClause))
+				return true;
+		return false;
 	}
 	public HashSet<Literal> getAllLiterals() {
 		HashSet<Literal> ret = new HashSet<Literal>();

@@ -85,7 +85,6 @@ public class HandleForthMessage extends OneShotBehaviour {
 				} catch(IOException ie) {
 					ie.printStackTrace();
 				}
-
 				myAgent.send(r1);
 				myAgent.send(r2);
 			} else {
@@ -97,9 +96,10 @@ public class HandleForthMessage extends OneShotBehaviour {
 				agent.setLOCAL(newLocal);
 
 				if (agent.getLOCAL().size() == 0) {
+					System.out.println("TU :((");
 					ACLMessage r1 = acl_message.createReply();
 					try{
-						r1.setContentObject(new BackMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())),Clause.trueClause()));
+						r1.setContentObject(new FinalMessage(new History(hist).push(new HistEl(p, myAgent.getAID(), Clause.trueClause())),Clause.trueClause()));
 					}catch(IOException ie) {
 						ie.printStackTrace();
 					}
